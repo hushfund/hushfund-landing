@@ -1,0 +1,2481 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hushfund · Private USDC vaults on Ethereum</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Private, gas-free USDC vaults on Ethereum. Earn Aave and Morpho yield, then withdraw with a zero-knowledge proof and no onchain link back to you.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="canonical" href="https://hushfund.eth.limo/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hushfund.eth.limo/">
+<meta property="og:title" content="Hushfund · Private USDC vaults on Ethereum">
+<meta property="og:description" content="Deposit USDC, earn yield, withdraw privately. Gas-free on Ethereum mainnet.">
+<meta property="og:image" content="https://hushfund.eth.limo/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Hushfund_">
+<meta name="twitter:image" content="https://hushfund.eth.limo/og-image.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+body{margin:0;background:#000}
+a{color:#d7f700}a:hover{color:#eefc8a}
+.hf *{box-sizing:border-box}
+.hf .mono{font-family:'Geist Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+/* buttons */
+.hf .btn{display:inline-flex;align-items:center;gap:10px;text-decoration:none;transition:background .25s,color .25s,border-color .25s,box-shadow .25s}
+.hf .btn .ar{transition:transform .3s cubic-bezier(.2,.8,.2,1)}
+.hf .btn:hover .ar{transform:translateX(4px)}
+.hf .btn-l:hover{background:#eefc8a;color:#0a0b00;box-shadow:0 0 0 6px rgba(215,247,0,.12)}
+.hf .btn-o:hover{border-color:#d7f700;color:#d7f700}
+.hf .nl{color:#a3a3a3;text-decoration:none;transition:color .2s}
+.hf .nl:hover{color:#fff}
+.hf a:focus-visible,.hf button:focus-visible,.hf summary:focus-visible{outline:2px solid #d7f700;outline-offset:3px}
+/* rows (vault list) */
+.hf .row{transition:background .25s,color .25s,border-color .25s}
+.hf .row:hover{background:#d7f700;color:#0a0b00;border-color:#d7f700}
+.hf .row:hover .rdim{color:#2a2d00}
+.hf .row:hover .rgo{background:#0a0b00;color:#d7f700;border-color:#0a0b00}
+.hf .row .rgo{transition:background .25s,color .25s,transform .3s}
+.hf .row:hover .rgo{transform:rotate(-45deg)}
+/* feature tiles */
+.hf .tile .bar{transition:width .5s cubic-bezier(.2,.8,.2,1),background .3s}
+.hf .tile:hover .bar{width:100%!important;background:#d7f700!important}
+.hf .tile:hover .ti{color:#d7f700}
+/* keyframes */
+@keyframes hfIn{from{opacity:0;filter:blur(12px);transform:translateY(22px)}}
+@keyframes hfDraw{from{stroke-dashoffset:var(--len,800)}}
+@keyframes hfRain{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+@keyframes hfScan{from{transform:translateY(-10%)}to{transform:translateY(110%)}}
+@keyframes hfSpin{to{transform:rotate(360deg)}}
+@keyframes hfPulse{50%{opacity:.25}}
+@keyframes hfBlink{50%{opacity:0}}
+@keyframes hfFloat{50%{transform:translateY(-8px)}}
+@keyframes hfDot{0%,100%{opacity:.12}50%{opacity:.9}}
+@keyframes hfGrowX{from{transform:scaleX(0)}}
+@keyframes hfBars{0%,100%{transform:scaleY(.35)}50%{transform:scaleY(1)}}
+@keyframes hfLeaf{0%,25%{fill:transparent}35%,70%{fill:#d7f700}80%,100%{fill:transparent}}
+@keyframes hfTicker{to{transform:translateX(-50%)}}
+.hf .in{animation:hfIn 1s cubic-bezier(.2,.75,.2,1) both}
+.hf .d1{animation-delay:.1s}.hf .d2{animation-delay:.2s}.hf .d3{animation-delay:.3s}.hf .d4{animation-delay:.4s}.hf .d5{animation-delay:.55s}
+.hf .draw{stroke-dasharray:var(--len,800);animation:hfDraw 2.2s cubic-bezier(.4,0,.2,1) both}
+.hf .rain{animation:hfRain 28s linear infinite}
+.hf .scan{animation:hfScan 5s cubic-bezier(.5,0,.5,1) infinite}
+.hf .spin{transform-box:fill-box;transform-origin:center;animation:hfSpin 18s linear infinite}
+.hf .spinr{transform-box:fill-box;transform-origin:center;animation:hfSpin 30s linear infinite reverse}
+.hf .pulse{animation:hfPulse 2.2s ease-in-out infinite}
+.hf .blink{animation:hfBlink 1s steps(1) infinite}
+.hf .float{animation:hfFloat 7s ease-in-out infinite}
+.hf .dotc{animation:hfDot 3.4s ease-in-out infinite}
+.hf .growx{transform-origin:left;animation:hfGrowX 1.2s cubic-bezier(.2,.8,.2,1) both}
+.hf .bars{transform-box:fill-box;transform-origin:bottom;animation:hfBars 2.6s ease-in-out infinite}
+.hf .leaf{animation:hfLeaf 5.6s ease-in-out infinite}
+.hf .ticker{animation:hfTicker 40s linear infinite}
+.hf details summary{cursor:pointer;list-style:none}
+.hf details summary::-webkit-details-marker{display:none}
+.hf details .pl{transition:transform .3s}
+.hf details[open] .pl{transform:rotate(45deg)}
+.hf details[open]{border-color:#3a3a3a}
+@media (prefers-reduced-motion: reduce){.hf *{animation:none!important;transition:none!important}}
+@media (max-width: 900px){
+  .hf .nlinks{display:none!important}
+  .hf .g2{grid-template-columns:minmax(0,1fr)!important}
+  .hf .g4{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .hf .h1{font-size:52px!important}
+  .hf .h2{font-size:36px!important}
+  .hf .rmeta{display:none!important}
+  .hf #ethereum .row{grid-template-columns:40px minmax(0,1fr)!important}
+  .hf #ethereum .row .rgo{display:none!important}
+  .hf #ethereum .row > span:nth-child(3){grid-column:2}
+  .hf .word{font-size:72px!important}
+}
+</style>
+<style>html,body{margin:0;background:#000}</style>
+<link rel="stylesheet" href="landing-responsive.css">
+</head>
+<body>
+<div class="hf" style="background: #000; color: #fff; font-family: 'Geist', 'Manrope', system-ui, -apple-system, sans-serif; font-size: 15px; line-height: 1.55; overflow-x: hidden; position: relative">
+
+  <!-- ===== NAV ===== -->
+  <header style="position: sticky; top: 0; z-index: 30; background: rgba(0,0,0,0.72); backdrop-filter: blur(16px) saturate(140%); -webkit-backdrop-filter: blur(16px) saturate(140%); border-bottom: 1px solid #1c1c1c">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 64px; display: flex; align-items: center; gap: 32px">
+      <a href="./" aria-label="Hushfund home" style="display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none">
+        <svg width="26" height="26" viewBox="100 110 1080 1080" fill="#d7f700" color="#d7f700" aria-hidden="true"><rect x="127" y="288" width="650" height="140"></rect><rect x="127" y="288" width="143" height="284"></rect><circle cx="944" cy="357" r="163" fill="none" stroke="currentColor" stroke-width="136"></circle><path d="M127 712A503.6 503.6 0 0 0 1129 712L982 712A362 362 0 0 1 274 712Z"></path><circle cx="628" cy="612" r="90"></circle><path d="M565 672H691L735 840H522Z"></path></svg>
+        <span class="mono" style="font-size: 14px; font-weight: 500; letter-spacing: 0.22em">HUSHFUND</span>
+      </a>
+      <nav class="nlinks mono" aria-label="Sections" style="display: flex; gap: 28px; font-size: 12.5px; margin-left: auto">
+        <a class="nl" href="#how">How it works</a>
+        <a class="nl" href="#features">Features</a>
+        <a class="nl" href="#ethereum">Why Ethereum</a>
+        <a class="nl" href="#security">Security</a>
+        <a class="nl" href="https://hushfund.app/docs">Docs</a>
+      </nav>
+      <a class="btn btn-l mono" href="https://hushfund.app" data-app style="margin-left: auto; padding: 9px 16px; background: #d7f700; color: #0a0b00; font-size: 12.5px; font-weight: 500; border-radius: 4px">Launch app <span class="ar" aria-hidden="true">›</span></a>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section style="position: relative; border-bottom: 1px solid #1c1c1c">
+    <!-- hex rain, masked to a soft oval behind the illustration -->
+    <div aria-hidden="true" style="position: absolute; inset: 0; overflow: hidden; pointer-events: none; -webkit-mask-image: radial-gradient(60% 70% at 72% 45%, #000 20%, transparent 75%); mask-image: radial-gradient(60% 70% at 72% 45%, #000 20%, transparent 75%)">
+      <div style="position: absolute; left: 38%; right: 0; top: 0; display: flex; gap: 22px; justify-content: space-between">
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 33.3s; animation-delay: -4.2s">0xe413c35c
+0x9df84779
+0xc1c05789
+0xb5d006d1
+0xad5cc9a4
+0xcda7b438
+0x68e62abe
+
+0x25d517d9
+
+
+0xf7aa7197
+0x1dca1d99
+0x7b98e15a
+0x446b401f
+0xdd654f1c
+
+0xaeb52841
+
+0x219cac66
+0x6a52d826
+0xdbc83bb5
+
+0x7411a38c
+0x3e2a9e32
+
+0x1f3b199e
+0xfb060f33
+0xdb4bf945
+
+0x3511a158
+0x64ab7ea6
+0x98a13f60
+
+
+0x7647e99f
+0xe413c35c
+0x9df84779
+0xc1c05789
+0xb5d006d1
+0xad5cc9a4
+0xcda7b438
+0x68e62abe
+
+0x25d517d9
+
+
+0xf7aa7197
+0x1dca1d99
+0x7b98e15a
+0x446b401f
+0xdd654f1c
+
+0xaeb52841
+
+0x219cac66
+0x6a52d826
+0xdbc83bb5
+
+0x7411a38c
+0x3e2a9e32
+
+0x1f3b199e
+0xfb060f33
+0xdb4bf945
+
+0x3511a158
+0x64ab7ea6
+0x98a13f60
+
+
+0x7647e99f</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 37.2s; animation-delay: -5.3s">0xcb569903
+0xff0b42aa
+0x363c00cd
+0xa52ce590
+0x80005566
+0x3a2b7674
+
+0x8b39a0e4
+0xe09e547a
+
+0x54cd7481
+
+0x644f9214
+0x4deeab61
+0x2919a829
+0x3df3dc90
+0xcdd19d1c
+0x0ce70cce
+0x4f7870ed
+0xc9ca1bdb
+0xcf0e32bd
+0x758b19c7
+0x2f83e35c
+0x103bf5a1
+
+0xde683fa5
+0x9d9c07a5
+0x93801764
+0x15689328
+0x5787de12
+0x8c221d89
+0xf98d94bf
+0xd2dc86d9
+0x7a52383a
+0x1663ee07
+0xfa25cba4
+0xcb569903
+0xff0b42aa
+0x363c00cd
+0xa52ce590
+0x80005566
+0x3a2b7674
+
+0x8b39a0e4
+0xe09e547a
+
+0x54cd7481
+
+0x644f9214
+0x4deeab61
+0x2919a829
+0x3df3dc90
+0xcdd19d1c
+0x0ce70cce
+0x4f7870ed
+0xc9ca1bdb
+0xcf0e32bd
+0x758b19c7
+0x2f83e35c
+0x103bf5a1
+
+0xde683fa5
+0x9d9c07a5
+0x93801764
+0x15689328
+0x5787de12
+0x8c221d89
+0xf98d94bf
+0xd2dc86d9
+0x7a52383a
+0x1663ee07
+0xfa25cba4</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 35.7s; animation-delay: -8.7s">0xea243575
+0xd73dfdd5
+0x4f593139
+0x77ad34c5
+0xa36d3bdd
+
+
+0xec6a94ad
+0x6f145fb7
+0x2a8f5180
+0x50ecdf4d
+
+0x6820d416
+0x0a33fc1c
+0x174a8015
+0xe488d345
+0xb54219f2
+0xbdcb986e
+0x314892dd
+0x74fd5b75
+0xac2e0998
+0x1b0efe6b
+0x05e25e31
+
+0x00d7f4f5
+0xe9593c98
+
+0xfbfe02e7
+0x36c64fc8
+0xc85dc459
+0xc6d8b4fd
+0x849a54b9
+0x35d80801
+0x2ed6e408
+
+0x2c74b034
+0xea243575
+0xd73dfdd5
+0x4f593139
+0x77ad34c5
+0xa36d3bdd
+
+
+0xec6a94ad
+0x6f145fb7
+0x2a8f5180
+0x50ecdf4d
+
+0x6820d416
+0x0a33fc1c
+0x174a8015
+0xe488d345
+0xb54219f2
+0xbdcb986e
+0x314892dd
+0x74fd5b75
+0xac2e0998
+0x1b0efe6b
+0x05e25e31
+
+0x00d7f4f5
+0xe9593c98
+
+0xfbfe02e7
+0x36c64fc8
+0xc85dc459
+0xc6d8b4fd
+0x849a54b9
+0x35d80801
+0x2ed6e408
+
+0x2c74b034</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 33.9s; animation-delay: -4.2s">0x051463ee
+0x56cf414e
+0x9be62319
+0x17cd3da4
+0x1097d233
+
+0x7a927f9d
+0x3366f4b9
+0x674f03c9
+0x5b4fc311
+0x33da76e5
+
+0x21661785
+0xd55d7ff2
+0x8db0dbdb
+0x6ce27e73
+
+0x7089e1f3
+0x1566cf3f
+
+
+0xf3f42a56
+0x83951a17
+0x5bf541a8
+
+0xf59e42d5
+0x2e546ea4
+0xafdac124
+0x8b44a0a7
+0x37f53f61
+0xd711d198
+0xbf0e9b8d
+0x02dee167
+0x15f5e698
+0x2b89ef35
+0x7adc1082
+0x051463ee
+0x56cf414e
+0x9be62319
+0x17cd3da4
+0x1097d233
+
+0x7a927f9d
+0x3366f4b9
+0x674f03c9
+0x5b4fc311
+0x33da76e5
+
+0x21661785
+0xd55d7ff2
+0x8db0dbdb
+0x6ce27e73
+
+0x7089e1f3
+0x1566cf3f
+
+
+0xf3f42a56
+0x83951a17
+0x5bf541a8
+
+0xf59e42d5
+0x2e546ea4
+0xafdac124
+0x8b44a0a7
+0x37f53f61
+0xd711d198
+0xbf0e9b8d
+0x02dee167
+0x15f5e698
+0x2b89ef35
+0x7adc1082</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 28.8s; animation-delay: -15.4s">0x12cdd22b
+0xa1396a62
+0x9b987ead
+0x54303110
+
+
+
+0x3f80e0f7
+0x6f7bd457
+
+0x615ef880
+0x9b3879c9
+0xb99ddf8d
+0x2ea28cf1
+0x0fbaa568
+0x900a8d17
+0x24c66a32
+0xf0427d1c
+0x48b10dfb
+0x4f784c00
+0x4aaa8f92
+0x8d8c09e3
+0x3b620028
+0xa980b5a4
+0x0b296fac
+0xb4714054
+0xc9cebd0f
+0xae52d9f2
+
+0x652ea516
+0x6113170e
+
+
+0x40592d5d
+0xf98ec89c
+0x61fb1313
+0x12cdd22b
+0xa1396a62
+0x9b987ead
+0x54303110
+
+
+
+0x3f80e0f7
+0x6f7bd457
+
+0x615ef880
+0x9b3879c9
+0xb99ddf8d
+0x2ea28cf1
+0x0fbaa568
+0x900a8d17
+0x24c66a32
+0xf0427d1c
+0x48b10dfb
+0x4f784c00
+0x4aaa8f92
+0x8d8c09e3
+0x3b620028
+0xa980b5a4
+0x0b296fac
+0xb4714054
+0xc9cebd0f
+0xae52d9f2
+
+0x652ea516
+0x6113170e
+
+
+0x40592d5d
+0xf98ec89c
+0x61fb1313</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 26.0s; animation-delay: -10.1s">0xd4610586
+
+0xcf7b7e70
+
+0xf95db4ef
+0xbb3a5114
+0x7093e2b5
+0x7cbcaa16
+0xe5c8fd7a
+0x0d1cf106
+0x39ece81d
+0x9c6b17d4
+0x7beec19f
+0x0a993b92
+0x9cdf9910
+0x66c53f4e
+0xacae507f
+0xa1c021d8
+
+0xa6df5cd5
+0xbc90162b
+0x71a89faa
+
+0xa2c1ca46
+0xb50c15e0
+0x797e20b2
+0x306d2f0f
+
+0xe0b661c7
+0x9bd181d5
+0x3969a56f
+0x0ebff1a8
+0x6f0ac8d5
+0x709c5f5a
+0x759aea4a
+0xc158acfa
+0xd4610586
+
+0xcf7b7e70
+
+0xf95db4ef
+0xbb3a5114
+0x7093e2b5
+0x7cbcaa16
+0xe5c8fd7a
+0x0d1cf106
+0x39ece81d
+0x9c6b17d4
+0x7beec19f
+0x0a993b92
+0x9cdf9910
+0x66c53f4e
+0xacae507f
+0xa1c021d8
+
+0xa6df5cd5
+0xbc90162b
+0x71a89faa
+
+0xa2c1ca46
+0xb50c15e0
+0x797e20b2
+0x306d2f0f
+
+0xe0b661c7
+0x9bd181d5
+0x3969a56f
+0x0ebff1a8
+0x6f0ac8d5
+0x709c5f5a
+0x759aea4a
+0xc158acfa</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 30.6s; animation-delay: -15.8s">0x09ea9e8f
+
+0x2d87987c
+0x6c9d082f
+0xaf2e7b4e
+0x2a70272c
+
+
+
+0x44d0eed6
+0x1142878f
+0x9febd060
+0x10002cdd
+0xc8e5a0fa
+0xfdbdb00a
+0xe1cd7052
+
+0x95923252
+0x8942eb87
+0x3d3943f4
+0xe4abafed
+0xc4cd4285
+0x2ee36222
+0x494130f5
+0x571af345
+0xada30d54
+0x7f308366
+0x00f4c9a1
+0x8534f267
+0x313463dc
+0x7a275f46
+0x62520bf7
+0x5d09ab23
+0x706f8300
+0x1fc9d6e0
+0x7e6ae9f7
+0x09ea9e8f
+
+0x2d87987c
+0x6c9d082f
+0xaf2e7b4e
+0x2a70272c
+
+
+
+0x44d0eed6
+0x1142878f
+0x9febd060
+0x10002cdd
+0xc8e5a0fa
+0xfdbdb00a
+0xe1cd7052
+
+0x95923252
+0x8942eb87
+0x3d3943f4
+0xe4abafed
+0xc4cd4285
+0x2ee36222
+0x494130f5
+0x571af345
+0xada30d54
+0x7f308366
+0x00f4c9a1
+0x8534f267
+0x313463dc
+0x7a275f46
+0x62520bf7
+0x5d09ab23
+0x706f8300
+0x1fc9d6e0
+0x7e6ae9f7</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 23.4s; animation-delay: -18.0s">
+0x8ff8b75a
+0x54edea60
+
+0x08255251
+0x71a3cee9
+
+0xead3eed5
+0x357d5b0c
+0x404e977b
+0x4f9cb666
+0x86a92d00
+0x38aa00ae
+0xbae29384
+0x1fa639d5
+0xcc1a07e6
+0xe58151fb
+0xce315a37
+0xaa5b57ff
+0xbe369b76
+0x4d144ce2
+0x8d2abc95
+0xcfbb2fb3
+0x4a0ccaa2
+0x4041e184
+0xf6cdc89d
+0xafc5a232
+0x817db487
+0xfd2932c0
+0x1a1c8f50
+0x2a7bc05c
+0x72994808
+
+0x5bb3dc7c
+0x915e0be3
+0xfea98119
+
+0x8ff8b75a
+0x54edea60
+
+0x08255251
+0x71a3cee9
+
+0xead3eed5
+0x357d5b0c
+0x404e977b
+0x4f9cb666
+0x86a92d00
+0x38aa00ae
+0xbae29384
+0x1fa639d5
+0xcc1a07e6
+0xe58151fb
+0xce315a37
+0xaa5b57ff
+0xbe369b76
+0x4d144ce2
+0x8d2abc95
+0xcfbb2fb3
+0x4a0ccaa2
+0x4041e184
+0xf6cdc89d
+0xafc5a232
+0x817db487
+0xfd2932c0
+0x1a1c8f50
+0x2a7bc05c
+0x72994808
+
+0x5bb3dc7c
+0x915e0be3
+0xfea98119</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 24.3s; animation-delay: -15.1s">0xf7743348
+0x8d269442
+0x9fdb712f
+0x50b90e55
+0x05129ef5
+0x022a5756
+0x7a47aaba
+0xa39bae46
+
+0xe5a955d5
+
+
+0xac415f01
+0xc7edf09f
+
+0xe8d2d324
+0x46509fc3
+0xec8e9422
+0x0dbf1474
+0xde19440e
+0xa20d7713
+0xbea2e2d9
+0x363ac992
+
+0xd0a6f924
+0x955090e7
+
+0x61db3ae1
+0x60296adb
+0xa636d176
+0x5836b414
+0xda7f47f9
+0x3033ed4b
+0xeda7bb5c
+0x061e0460
+0xeecd0eac
+0xf7743348
+0x8d269442
+0x9fdb712f
+0x50b90e55
+0x05129ef5
+0x022a5756
+0x7a47aaba
+0xa39bae46
+
+0xe5a955d5
+
+
+0xac415f01
+0xc7edf09f
+
+0xe8d2d324
+0x46509fc3
+0xec8e9422
+0x0dbf1474
+0xde19440e
+0xa20d7713
+0xbea2e2d9
+0x363ac992
+
+0xd0a6f924
+0x955090e7
+
+0x61db3ae1
+0x60296adb
+0xa636d176
+0x5836b414
+0xda7f47f9
+0x3033ed4b
+0xeda7bb5c
+0x061e0460
+0xeecd0eac</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 39.7s; animation-delay: -3.3s">0xe80b64dd
+0xc24fecc6
+0xa1ff573a
+0xb66f0a5e
+
+0x8d33986a
+0x97e17d60
+0xe95f9b16
+0xa7c134c0
+0x246a8da1
+
+0x68fd91eb
+0xe546d3aa
+0x33c6d4a1
+0x73c2d923
+0xec8d0664
+0xe03dbf9a
+
+0x42417077
+0xc9673efc
+
+0xb8168858
+0xde26245a
+
+0xc04071bf
+
+0xc757d059
+0xd166cd62
+0x5768458e
+0x9da36dc2
+0xc6699992
+0x37effd11
+
+
+0x58dc94dd
+0x096a5e47
+0xe80b64dd
+0xc24fecc6
+0xa1ff573a
+0xb66f0a5e
+
+0x8d33986a
+0x97e17d60
+0xe95f9b16
+0xa7c134c0
+0x246a8da1
+
+0x68fd91eb
+0xe546d3aa
+0x33c6d4a1
+0x73c2d923
+0xec8d0664
+0xe03dbf9a
+
+0x42417077
+0xc9673efc
+
+0xb8168858
+0xde26245a
+
+0xc04071bf
+
+0xc757d059
+0xd166cd62
+0x5768458e
+0x9da36dc2
+0xc6699992
+0x37effd11
+
+
+0x58dc94dd
+0x096a5e47</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 39.2s; animation-delay: -19.8s">0xfd85a570
+
+0x77b4aae2
+
+0x545bd0a0
+
+0x63c39d0b
+
+0x002e04c7
+0x0dc27f8c
+
+0x45a55458
+0xc2afc46b
+
+0x7696b2f7
+0x8168ee66
+0x80b51e41
+0xc6c275fb
+0x78c35899
+
+0xa0cfa6f7
+0x0c091c0c
+
+0x336fd142
+0xaba8d640
+0x5ab1220e
+0x75beeabf
+0x5ff352b8
+0x3da3cd1c
+0x43137040
+
+0x487ae68a
+
+0x228dc807
+0x496f936f
+0x2f882e0e
+0xfd85a570
+
+0x77b4aae2
+
+0x545bd0a0
+
+0x63c39d0b
+
+0x002e04c7
+0x0dc27f8c
+
+0x45a55458
+0xc2afc46b
+
+0x7696b2f7
+0x8168ee66
+0x80b51e41
+0xc6c275fb
+0x78c35899
+
+0xa0cfa6f7
+0x0c091c0c
+
+0x336fd142
+0xaba8d640
+0x5ab1220e
+0x75beeabf
+0x5ff352b8
+0x3da3cd1c
+0x43137040
+
+0x487ae68a
+
+0x228dc807
+0x496f936f
+0x2f882e0e</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 39.1s; animation-delay: -12.8s">0x1dbc1a70
+0x6283e529
+0xbbc5a35d
+0x3bc6aa42
+0x37bb2c29
+
+0x3e86d494
+0x29193e48
+0x9f9004e0
+
+0x65e89df2
+0xf88113a4
+0x182d254a
+
+0x600e637b
+0x950ab804
+0x36f98a90
+0x96200b55
+0xfbc38095
+0x86254d94
+
+0xe8c75881
+0x5196db3b
+
+
+
+0x5869512f
+0x8ccf391b
+0x2b298ceb
+0x79cbaf03
+0xdbd8a596
+0x65a5f4e9
+
+0xb76be20b
+0x07e37be2
+0x9f2a4a89
+0x1dbc1a70
+0x6283e529
+0xbbc5a35d
+0x3bc6aa42
+0x37bb2c29
+
+0x3e86d494
+0x29193e48
+0x9f9004e0
+
+0x65e89df2
+0xf88113a4
+0x182d254a
+
+0x600e637b
+0x950ab804
+0x36f98a90
+0x96200b55
+0xfbc38095
+0x86254d94
+
+0xe8c75881
+0x5196db3b
+
+
+
+0x5869512f
+0x8ccf391b
+0x2b298ceb
+0x79cbaf03
+0xdbd8a596
+0x65a5f4e9
+
+0xb76be20b
+0x07e37be2
+0x9f2a4a89</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 22.0s; animation-delay: -10.7s">0x65962366
+0xd8a1f492
+0xc7a042c1
+0x75e65f29
+0x1799500c
+
+0x01a98aee
+0x5705c343
+0xa2dc0124
+0x246375c5
+0x32ee7659
+0xe0b01625
+0xa1eec97c
+0x9aeca574
+
+
+0xde0c7f52
+
+
+0x13a144aa
+0x2d602aa1
+
+0xfde48568
+0xd3fe1007
+0xad93ae13
+0xbfe865ee
+0x4d21a6bc
+
+0xab1a8b30
+0xbbd9d35f
+0x468da661
+0x828739cb
+0xc1feb090
+0x37147f25
+0x3a4ea9ae
+0xdcaf936e
+0x65962366
+0xd8a1f492
+0xc7a042c1
+0x75e65f29
+0x1799500c
+
+0x01a98aee
+0x5705c343
+0xa2dc0124
+0x246375c5
+0x32ee7659
+0xe0b01625
+0xa1eec97c
+0x9aeca574
+
+
+0xde0c7f52
+
+
+0x13a144aa
+0x2d602aa1
+
+0xfde48568
+0xd3fe1007
+0xad93ae13
+0xbfe865ee
+0x4d21a6bc
+
+0xab1a8b30
+0xbbd9d35f
+0x468da661
+0x828739cb
+0xc1feb090
+0x37147f25
+0x3a4ea9ae
+0xdcaf936e</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 22.7s; animation-delay: -16.9s">
+0xc80ab16f
+
+0xb5966c89
+0x56863e06
+
+0x7bdbfda6
+
+0x50340a9a
+0xb2f10a0b
+0x1829fdf7
+0xa6112893
+
+0xf0cdf433
+0x820351b1
+0x5de9f7ef
+0xa2d31810
+0xa8f4e979
+0xa191bd6e
+
+0x1feb9f39
+0xe4e419b7
+0xad6896b1
+0xadab4b6b
+0x1ad27c18
+
+0x6415c0df
+0x53c307ec
+0xcd65b9ec
+0xf74e2b25
+0x25a490e9
+0x8ab84d5d
+0x6bc166d4
+
+
+0x114f7319
+
+0xc80ab16f
+
+0xb5966c89
+0x56863e06
+
+0x7bdbfda6
+
+0x50340a9a
+0xb2f10a0b
+0x1829fdf7
+0xa6112893
+
+0xf0cdf433
+0x820351b1
+0x5de9f7ef
+0xa2d31810
+0xa8f4e979
+0xa191bd6e
+
+0x1feb9f39
+0xe4e419b7
+0xad6896b1
+0xadab4b6b
+0x1ad27c18
+
+0x6415c0df
+0x53c307ec
+0xcd65b9ec
+0xf74e2b25
+0x25a490e9
+0x8ab84d5d
+0x6bc166d4
+
+
+0x114f7319</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 34.6s; animation-delay: -13.7s">0x2bae16c5
+0x3f884a4d
+0xce560bb8
+0x0d7c7b6b
+
+0x00ede993
+0xb4f89789
+0x194a05a6
+0x7108773f
+
+
+
+0x5109801c
+
+0x35e47e7b
+0x1a698b5e
+0xe268abcd
+0xf228f3ec
+0x7eebc60e
+0xc9d65957
+0x084cd02d
+0x7f729fb2
+0x619cc93b
+0x13feb3fb
+0xc9dba037
+0xa668d523
+
+
+0xf87612e2
+0xc0d74a63
+0x043bece8
+0x07c74fa4
+0xffdea5dd
+0x3d9533c4
+0xe8504cb0
+0x425315d3
+0x2bae16c5
+0x3f884a4d
+0xce560bb8
+0x0d7c7b6b
+
+0x00ede993
+0xb4f89789
+0x194a05a6
+0x7108773f
+
+
+
+0x5109801c
+
+0x35e47e7b
+0x1a698b5e
+0xe268abcd
+0xf228f3ec
+0x7eebc60e
+0xc9d65957
+0x084cd02d
+0x7f729fb2
+0x619cc93b
+0x13feb3fb
+0xc9dba037
+0xa668d523
+
+
+0xf87612e2
+0xc0d74a63
+0x043bece8
+0x07c74fa4
+0xffdea5dd
+0x3d9533c4
+0xe8504cb0
+0x425315d3</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 25.2s; animation-delay: -2.6s">
+0x1d272145
+
+0xd6d1a663
+
+0x633c3799
+0x6cd90c8e
+0xac251813
+
+0x98690bb0
+0x51ed78ba
+
+0x1112d64c
+0xd585e11e
+0x9c74e06b
+
+0xa2227788
+
+0xc3d98963
+0xad4bc106
+0xf2b0769c
+
+
+0x6ef96a32
+0x8661b336
+0x6f00bd73
+0x4b3bba3b
+0x5f15feb2
+0xeee3be2d
+0x2e092ed0
+0x609a820f
+
+0xbdb3ded7
+0x12054cf5
+0x7ad3be9e
+0x0a5057e6
+
+0x1d272145
+
+0xd6d1a663
+
+0x633c3799
+0x6cd90c8e
+0xac251813
+
+0x98690bb0
+0x51ed78ba
+
+0x1112d64c
+0xd585e11e
+0x9c74e06b
+
+0xa2227788
+
+0xc3d98963
+0xad4bc106
+0xf2b0769c
+
+
+0x6ef96a32
+0x8661b336
+0x6f00bd73
+0x4b3bba3b
+0x5f15feb2
+0xeee3be2d
+0x2e092ed0
+0x609a820f
+
+0xbdb3ded7
+0x12054cf5
+0x7ad3be9e
+0x0a5057e6</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 22.1s; animation-delay: -2.8s">0xc17c339e
+
+0xa41c7abf
+0xe29c7cb5
+0x23986137
+0xab549e69
+0x9f0347ae
+0x43fabf0b
+0xfb6c1bf4
+0xda8fbe9c
+0x45a5cd38
+0x50029c0c
+0x7edb6f6b
+
+0x464796af
+0x5f1ff7d6
+
+0xb525b799
+0xf56e7db5
+0xf5dfe318
+
+0x8cb6cf78
+
+0x670d964c
+0x073a2872
+
+0xf16f268a
+0x2f63852c
+0x51e3d739
+0xba136106
+0xaf4676d6
+0x33b14bdf
+0xdb980453
+0xab4ff596
+
+0x7d971ce3
+0xc17c339e
+
+0xa41c7abf
+0xe29c7cb5
+0x23986137
+0xab549e69
+0x9f0347ae
+0x43fabf0b
+0xfb6c1bf4
+0xda8fbe9c
+0x45a5cd38
+0x50029c0c
+0x7edb6f6b
+
+0x464796af
+0x5f1ff7d6
+
+0xb525b799
+0xf56e7db5
+0xf5dfe318
+
+0x8cb6cf78
+
+0x670d964c
+0x073a2872
+
+0xf16f268a
+0x2f63852c
+0x51e3d739
+0xba136106
+0xaf4676d6
+0x33b14bdf
+0xdb980453
+0xab4ff596
+
+0x7d971ce3</div>
+        
+          <div class="rain mono" style="font-size: 11px; line-height: 1.6; color: rgba(215,247,0,0.32); white-space: pre; animation-duration: 28.1s; animation-delay: -14.5s">0xaad3d201
+
+0xdd270470
+0x34c12f91
+0x176fb6b5
+0xb9450d10
+
+0x09658e86
+
+0xa7ea7fd6
+0xace8f9d6
+
+0x8a5bc76d
+0x057fa2a2
+0x840f7052
+0x3b4e96d2
+0x6e812736
+0x500b78e1
+0x3501bd08
+0x53b739de
+0xec6131b9
+0x4542e9cb
+0x91bf9558
+0x15cb8895
+
+
+0xebe6d61d
+0x33055fc9
+0x07274388
+0x9a71f77f
+0x1146afd2
+0xdfdb8e04
+0x0954e92a
+0xf3140378
+0xe1512241
+0x164c77da
+0xaad3d201
+
+0xdd270470
+0x34c12f91
+0x176fb6b5
+0xb9450d10
+
+0x09658e86
+
+0xa7ea7fd6
+0xace8f9d6
+
+0x8a5bc76d
+0x057fa2a2
+0x840f7052
+0x3b4e96d2
+0x6e812736
+0x500b78e1
+0x3501bd08
+0x53b739de
+0xec6131b9
+0x4542e9cb
+0x91bf9558
+0x15cb8895
+
+
+0xebe6d61d
+0x33055fc9
+0x07274388
+0x9a71f77f
+0x1146afd2
+0xdfdb8e04
+0x0954e92a
+0xf3140378
+0xe1512241
+0x164c77da</div>
+        
+      </div>
+    </div>
+
+    <div class="g2" style="position: relative; max-width: 1240px; margin: 0 auto; padding: 96px 24px 64px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: center">
+      <div style="display: flex; flex-direction: column; gap: 28px">
+        <span class="in mono" style="font-size: 12px; color: #d7f700; letter-spacing: 0.08em">//PRIVATE, GAS-FREE USDC VAULTS ON ETHEREUM</span>
+        <h1 class="in d1 h1" style="margin: 0; font-size: 68px; line-height: 1.02; letter-spacing: -0.04em; font-weight: 500; text-wrap: balance">Your money, hushed. <span style="color: #6b6b6b">Deposit, earn yield, and withdraw without a trace.</span></h1>
+        <p class="in d2 mono" style="margin: 0; font-size: 13px; line-height: 1.75; color: #9a9a9a; max-width: 30rem">USDC goes into Aave V3 and Morpho while it waits. A zero-knowledge proof made on your device lets you take it out, or borrow against it, with no link back to the wallet that put it in.</p>
+        <div class="in d3" style="display: flex; gap: 12px; flex-wrap: wrap">
+          <a class="btn btn-l mono" href="https://hushfund.app" data-app style="padding: 14px 22px; background: #d7f700; color: #0a0b00; font-size: 13.5px; font-weight: 500; border-radius: 4px">Launch app <span class="ar" aria-hidden="true">→</span></a>
+          <a class="btn btn-o mono" href="#how" style="padding: 14px 22px; border: 1px solid #3a3a3a; color: #e5e5e5; font-size: 13.5px; border-radius: 4px">How it works <span class="ar" aria-hidden="true">→</span></a>
+        </div>
+      </div>
+
+      <!-- wireframe vault (isometric), neon line art -->
+      <div class="in d2" style="position: relative">
+        <svg viewBox="0 0 560 500" width="100%" style="display: block; overflow: visible" role="img" aria-label="Wireframe illustration of a vault with a rotating dial and the Hushfund keyhole, with coins dropping into a slot">
+          <defs>
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.4" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter>
+            <linearGradient id="scanG" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#d7f700" stop-opacity="0"></stop><stop offset=".5" stop-color="#d7f700" stop-opacity=".22"></stop><stop offset="1" stop-color="#d7f700" stop-opacity="0"></stop></linearGradient>
+            <clipPath id="vaultClip"><path d="M120 160 L280 80 L440 160 L440 330 L280 410 L120 330 Z"></path></clipPath>
+          </defs>
+          <!-- floor grid -->
+          <g stroke="#d7f700" stroke-opacity="0.16" stroke-width="1">
+            <path d="M40 410 L280 290 L520 410 L280 530 Z" fill="none"></path>
+            <path d="M100 440 L340 320 M160 470 L400 350 M220 500 L460 380 M100 380 L340 500 M160 350 L400 470 M220 320 L460 440" fill="none"></path>
+          </g>
+          <g filter="url(#glow)" fill="none" stroke="#d7f700" stroke-width="1.6" stroke-linejoin="round">
+            <!-- body -->
+            <path class="draw" style="--len: 1200" d="M120 160 L280 80 L440 160 L280 240 Z"></path>
+            <path class="draw" style="--len: 1200; animation-delay: .3s" d="M120 160 L120 330 L280 410 L280 240"></path>
+            <path class="draw" style="--len: 1200; animation-delay: .5s" d="M280 410 L440 330 L440 160"></path>
+            <!-- top panel lines -->
+            <path stroke-opacity="0.45" d="M160 160 L280 100 L400 160 L280 220 Z"></path>
+            <!-- coin slot on top -->
+            <path d="M262 154 L300 135 M268 160 L306 141" stroke-width="2"></path>
+            <!-- left face: door panel + keyhole -->
+            <g transform="matrix(1 0.5 0 1 120 160)">
+              <rect x="16" y="16" width="128" height="138" rx="2" stroke-opacity="0.7"></rect>
+              <g transform="translate(80 86) scale(0.085) translate(-628 -650)" fill="#d7f700" stroke="none">
+                <circle cx="628" cy="612" r="90"></circle><path d="M565 672H691L735 840H522Z"></path>
+              </g>
+              <path d="M30 40 L30 130" stroke-opacity="0.45"></path>
+            </g>
+            <!-- right face: rotating dial + handle -->
+            <g transform="matrix(1 -0.5 0 1 280 240)">
+              <rect x="16" y="16" width="128" height="138" rx="2" stroke-opacity="0.7"></rect>
+              <circle cx="80" cy="76" r="40"></circle>
+              <g class="spin"><circle cx="80" cy="76" r="30" stroke-dasharray="3 6"></circle><path d="M80 46 L80 58"></path></g>
+              <g class="spinr"><circle cx="80" cy="76" r="18" stroke-opacity="0.7"></circle></g>
+              <circle cx="80" cy="76" r="4" fill="#d7f700"></circle>
+              <path d="M52 130 L108 130 M52 130 L52 120 M108 130 L108 120" stroke-width="2"></path>
+            </g>
+          </g>
+          <!-- scanline -->
+          <g clip-path="url(#vaultClip)"><rect class="scan" x="110" y="40" width="340" height="90" fill="url(#scanG)"></rect></g>
+          <!-- coins dropping into the slot -->
+          <g filter="url(#glow)" stroke="#d7f700" stroke-width="1.6" fill="#000">
+            <g class="float"><ellipse cx="290" cy="40" rx="26" ry="10"></ellipse><path d="M264 40 L264 48 A26 10 0 0 0 316 48 L316 40" fill="none"></path></g>
+          </g>
+          <!-- annotations -->
+          <g class="mono" font-size="10.5" fill="#8a8a8a" font-family="Geist Mono, monospace">
+            <path d="M440 200 L500 176 L548 176" stroke="#3a3a3a" fill="none"></path><text x="500" y="168">yield index</text>
+            <path d="M150 300 L70 330 L20 330" stroke="#3a3a3a" fill="none"></path><text x="20" y="348">proof-locked</text>
+            <path d="M306 141 L360 60 L420 60" stroke="#3a3a3a" fill="none"></path><text x="364" y="52">commitment</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- stats row (protocol facts) -->
+    <div class="g4" id="stats" style="position: relative; max-width: 1240px; margin: 0 auto; padding: 0 24px 56px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px">
+      
+        <div class="rv" style="display: flex; flex-direction: column; gap: 10px; padding-top: 22px; border-top: 1px solid #1c1c1c; position: relative">
+          <span class="growx" style="position: absolute; top: -1px; left: 0; width: 44px; height: 1px; background: #d7f700; animation-delay: .2s"></span>
+          <span class="num-roll" data-stat="0" style="font-size: 40px; font-weight: 400; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: #ffffff; filter: none; transition: color .6s ease">70%</span>
+          <span class="mono" style="font-size: 12px; color: #8a8a8a">Max loan-to-value, no liquidations</span>
+        </div>
+      
+        <div class="rv" style="display: flex; flex-direction: column; gap: 10px; padding-top: 22px; border-top: 1px solid #1c1c1c; position: relative">
+          <span class="growx" style="position: absolute; top: -1px; left: 0; width: 44px; height: 1px; background: #d7f700; animation-delay: .35s"></span>
+          <span class="num-roll" data-stat="1" style="font-size: 40px; font-weight: 400; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: #ffffff; filter: none; transition: color .6s ease">2²⁰</span>
+          <span class="mono" style="font-size: 12px; color: #8a8a8a">Deposits per vault (Merkle depth 20)</span>
+        </div>
+      
+        <div class="rv" style="display: flex; flex-direction: column; gap: 10px; padding-top: 22px; border-top: 1px solid #1c1c1c; position: relative">
+          <span class="growx" style="position: absolute; top: -1px; left: 0; width: 44px; height: 1px; background: #d7f700; animation-delay: .5s"></span>
+          <span class="num-roll" data-stat="2" style="font-size: 40px; font-weight: 400; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: #ffffff; filter: none; transition: color .6s ease">0 ETH</span>
+          <span class="mono" style="font-size: 12px; color: #8a8a8a">Gas you pay, on every action</span>
+        </div>
+      
+        <div class="rv" style="display: flex; flex-direction: column; gap: 10px; padding-top: 22px; border-top: 1px solid #1c1c1c; position: relative">
+          <span class="growx" style="position: absolute; top: -1px; left: 0; width: 44px; height: 1px; background: #d7f700; animation-delay: .65s"></span>
+          <span class="num-roll" data-stat="3" style="font-size: 40px; font-weight: 400; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: #ffffff; filter: none; transition: color .6s ease">2 days</span>
+          <span class="mono" style="font-size: 12px; color: #8a8a8a">Time lock on strategy changes</span>
+        </div>
+      
+    </div>
+  </section>
+
+  <!-- ticker -->
+  <div aria-hidden="true" style="border-bottom: 1px solid #1c1c1c; overflow: hidden; white-space: nowrap">
+    <div class="ticker mono" style="display: inline-flex; gap: 48px; padding: 14px 0; font-size: 12px; color: #6b6b6b">
+      <span style="display: inline-flex; align-items: center; gap: 10px"><img src="landing-assets/aave.png" alt="" width="18" height="18" style="width: 18px; height: 18px; border-radius: 5px; display: block">Aave V3</span><span style="display: inline-flex; align-items: center; gap: 10px"><img src="landing-assets/morpho.png" alt="" width="18" height="18" style="width: 18px; height: 18px; border-radius: 5px; display: block">Morpho</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>Noir circuits</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>UltraHonk proofs</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>Poseidon2 Merkle tree</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>Gas-free transactions</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>LI.FI cross-chain</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>ENS recipients</span><span style="display: inline-flex; align-items: center; gap: 10px"><img src="landing-assets/aave.png" alt="" width="18" height="18" style="width: 18px; height: 18px; border-radius: 5px; display: block">Aave V3</span><span style="display: inline-flex; align-items: center; gap: 10px"><img src="landing-assets/morpho.png" alt="" width="18" height="18" style="width: 18px; height: 18px; border-radius: 5px; display: block">Morpho</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>Noir circuits</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>UltraHonk proofs</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>Poseidon2 Merkle tree</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>Gas-free transactions</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>LI.FI cross-chain</span><span style="display: inline-flex; align-items: center; gap: 10px"><span style="color: #d7f700">◆</span>ENS recipients</span>
+    </div>
+  </div>
+
+  <!-- ===== HOW IT WORKS (process strip) ===== -->
+  <section id="how" style="position: relative; max-width: 1240px; margin: 0 auto; padding: 120px 24px 40px">
+    <span aria-hidden="true" style="position: absolute; left: 24px; top: 96px; width: 5px; height: 5px; background: #fff"></span>
+    <span aria-hidden="true" style="position: absolute; right: 24px; top: 96px; width: 5px; height: 5px; background: #fff"></span>
+    <div class="g2" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: end">
+      <div class="rv">
+        <span class="mono" style="font-size: 12px; color: #d7f700">//HOW IT WORKS</span>
+        <h2 class="h2" style="margin: 14px 0 0; font-size: 52px; line-height: 1.04; letter-spacing: -0.035em; font-weight: 500">In with one wallet. <span style="color: #6b6b6b">Out to another.</span></h2>
+      </div>
+      <p class="rv mono" style="margin: 0; font-size: 13px; line-height: 1.75; color: #9a9a9a; max-width: 34rem">Every deposit becomes an anonymous leaf in a Merkle tree. To withdraw, you prove you own one of the leaves without saying which. A relayer submits it, so your wallet never shows up on the way out.</p>
+    </div>
+
+    <div style="margin-top: 56px; overflow-x: auto">
+      <div style="min-width: 980px">
+        <div class="mono" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); text-align: center; font-size: 13px; color: #bdbdbd; padding-bottom: 22px; border-bottom: 1px solid #2a2a2a">
+          <span>Sign in</span><span>Deposit</span><span>Commit</span><span>Earn</span><span>Prove</span><span>Relay</span><span>Receive</span>
+        </div>
+        <svg viewBox="0 0 1190 250" width="100%" style="display: block; margin-top: 24px; overflow: visible" role="img" aria-label="Line drawings of the seven steps: a laptop with the Hushfund mark, coins entering a slot, a Merkle tree, rising yield bars, a proof document with a check mark, a relayer node passing a signal, and a globe">
+          <defs><filter id="glow2" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2" result="b"></feGaussianBlur><feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge></filter></defs>
+          <!-- frame around the private part of the flow -->
+          <rect class="draw" style="--len: 2400" x="190" y="8" width="820" height="226" fill="none" stroke="#d7f700" stroke-opacity="0.55" stroke-width="1"></rect>
+          <text x="198" y="246" fill="#d7f700" fill-opacity="0.7" font-size="10.5" font-family="Geist Mono, monospace">inside Hushfund</text>
+          <path id="flow" d="M150 128 L1040 128" fill="none" stroke="#2a2a2a" stroke-width="1"></path>
+          
+
+          <g fill="none" stroke="#e5e5e5" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round">
+            <!-- 1 laptop -->
+            <g transform="translate(25 60)">
+              <path class="draw" style="--len: 400" d="M14 10 L104 0 L112 74 L22 84 Z"></path>
+              <path class="draw" style="--len: 300" d="M22 84 L0 108 L98 120 L112 74"></path>
+              <path d="M20 96 L80 103" stroke-opacity="0.5"></path>
+              <g transform="translate(60 44) scale(0.04) translate(-628 -650)" fill="#d7f700" stroke="none"><rect x="127" y="288" width="650" height="140"></rect><rect x="127" y="288" width="143" height="284"></rect><circle cx="944" cy="357" r="163" fill="none" stroke="#d7f700" stroke-width="136"></circle><path d="M127 712A503.6 503.6 0 0 0 1129 712L982 712A362 362 0 0 1 274 712Z"></path><circle cx="628" cy="612" r="90"></circle><path d="M565 672H691L735 840H522Z"></path></g>
+            </g>
+            <!-- 2 coins into slot -->
+            <g transform="translate(222 40)">
+              <g class="float"><ellipse cx="50" cy="16" rx="28" ry="9"></ellipse><path d="M22 16 L22 24 A28 9 0 0 0 78 24 L78 16"></path></g>
+              <path d="M50 44 L50 92 M42 84 L50 92 L58 84" stroke="#d7f700"></path>
+              <path class="draw" style="--len: 400" d="M6 112 L94 112 L94 160 L6 160 Z"></path>
+              <path d="M30 112 L70 112" stroke="#d7f700" stroke-width="2.5"></path>
+              <path d="M20 128 L80 128 M20 140 L60 140" stroke-opacity="0.45"></path>
+            </g>
+            <!-- 3 merkle tree -->
+            <g transform="translate(383 48)">
+              <path class="draw" style="--len: 500" d="M60 14 L28 64 M60 14 L92 64 M28 64 L12 118 M28 64 L44 118 M92 64 L76 118 M92 64 L108 118"></path>
+              <circle cx="60" cy="14" r="9" fill="#000"></circle>
+              <circle cx="28" cy="64" r="8" fill="#000"></circle><circle cx="92" cy="64" r="8" fill="#000"></circle>
+              <rect x="3" y="118" width="18" height="18" rx="3" class="leaf" style="animation-delay: 0s"></rect>
+              <rect x="35" y="118" width="18" height="18" rx="3" class="leaf" style="animation-delay: 1.4s"></rect>
+              <rect x="67" y="118" width="18" height="18" rx="3" class="leaf" style="animation-delay: 2.8s"></rect>
+              <rect x="99" y="118" width="18" height="18" rx="3" class="leaf" style="animation-delay: 4.2s"></rect>
+              <text x="60" y="160" fill="#8a8a8a" stroke="none" font-size="9.5" text-anchor="middle" font-family="Geist Mono, monospace">depth 20</text>
+            </g>
+            <!-- 4 yield bars -->
+            <g transform="translate(552 52)">
+              <path d="M0 136 L116 136" stroke-opacity="0.6"></path>
+              <rect class="bars" x="10" y="80" width="16" height="56" style="animation-delay: 0s"></rect>
+              <rect class="bars" x="38" y="60" width="16" height="76" style="animation-delay: .3s"></rect>
+              <rect class="bars" x="66" y="38" width="16" height="98" style="animation-delay: .6s" stroke="#d7f700"></rect>
+              <rect class="bars" x="94" y="16" width="16" height="120" style="animation-delay: .9s" stroke="#d7f700"></rect>
+              <path d="M8 60 L46 34 L74 44 L112 4 M100 4 L112 4 L112 16" stroke="#d7f700"></path>
+            </g>
+            <!-- 5 proof doc -->
+            <g transform="translate(722 44)">
+              <path d="M8 14 L8 140 L92 140 L92 30 L76 14 Z" stroke-opacity="0.45" transform="translate(8 -8)"></path>
+              <path class="draw" style="--len: 500" d="M8 14 L8 140 L92 140 L92 30 L76 14 Z"></path>
+              <path d="M76 14 L76 30 L92 30"></path>
+              <path d="M22 50 L78 50 M22 62 L78 62 M22 74 L62 74" stroke="#d7f700" stroke-opacity="0.8"></path>
+              <circle cx="50" cy="108" r="16" stroke="#d7f700" filter="url(#glow2)"></circle>
+              <path d="M42 108 L48 114 L59 101" stroke="#d7f700" stroke-width="2"></path>
+            </g>
+            <!-- 6 relayer -->
+            <g transform="translate(883 52)">
+              <rect class="draw" style="--len: 400" x="22" y="40" width="72" height="56" rx="6"></rect>
+              <path d="M34 58 L82 58 M34 70 L70 70 M34 82 L76 82" stroke-opacity="0.45"></path>
+              <circle cx="58" cy="122" r="5" fill="#d7f700" stroke="none"></circle>
+              <path d="M58 96 L58 117"></path>
+              <path class="pulse" d="M40 20 A26 26 0 0 1 76 20" stroke="#d7f700"></path>
+              <path class="pulse" d="M30 10 A40 40 0 0 1 86 10" stroke="#d7f700" style="animation-delay: .5s"></path>
+            </g>
+            <!-- 7 globe -->
+            <g transform="translate(1060 46)">
+              <circle class="draw" style="--len: 420" cx="62" cy="82" r="60"></circle>
+              <g class="spin" style="animation-duration: 24s"><ellipse cx="62" cy="82" rx="26" ry="60" stroke-opacity="0.55"></ellipse></g>
+              <path d="M2 82 L122 82 M10 54 L114 54 M10 110 L114 110" stroke-opacity="0.4"></path>
+              <circle cx="88" cy="62" r="4" fill="#d7f700" stroke="none" class="pulse"></circle>
+            </g>
+          </g>
+          <!-- bouncing ball: hops from icon to icon with gravity easing and squash on landing -->
+          <ellipse rx="5" ry="5" fill="#d7f700" filter="url(#glow2)">
+            <animate attributeName="cx" dur="7.44s" repeatCount="indefinite" keyTimes="0;0.0417;0.0833;0.125;0.1667;0.2083;0.25;0.2917;0.3333;0.375;0.4167;0.4583;0.5;0.5417;0.5833;0.625;0.6667;0.7083;0.75;0.7917;0.8333;0.875;0.9167;0.9583;1" values="81;176.5;272;357.5;443;527.5;612;692;772;856.5;941;1031.5;1122;1031.5;941;856.5;772;692;612;527.5;443;357.5;272;176.5;81"></animate>
+            <animate attributeName="cy" dur="7.44s" repeatCount="indefinite" calcMode="spline" keyTimes="0;0.0417;0.0833;0.125;0.1667;0.2083;0.25;0.2917;0.3333;0.375;0.4167;0.4583;0.5;0.5417;0.5833;0.625;0.6667;0.7083;0.75;0.7917;0.8333;0.875;0.9167;0.9583;1" keySplines="0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53;0.25 0.46 0.45 0.94;0.55 0.085 0.68 0.53" values="55;-6.82;35;-6.42;48;5.62;47;3.8;45;1.62;43;1.38;63;1.38;43;1.62;45;3.8;47;5.62;48;-6.42;35;-6.82;55"></animate>
+            <animate attributeName="rx" dur="7.44s" repeatCount="indefinite" keyTimes="0;0.0593;0.0713;0.0833;0.0953;0.1073;0.1427;0.1547;0.1667;0.1787;0.1907;0.226;0.238;0.25;0.262;0.274;0.3093;0.3213;0.3333;0.3453;0.3573;0.3927;0.4047;0.4167;0.4287;0.4407;0.476;0.488;0.5;0.512;0.524;0.5593;0.5713;0.5833;0.5953;0.6073;0.6427;0.6547;0.6667;0.6787;0.6907;0.726;0.738;0.75;0.762;0.774;0.8093;0.8213;0.8333;0.8453;0.8573;0.8927;0.9047;0.9167;0.9287;0.9407;0.976;0.988;1" values="6.4;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4;5;5;4.6;5;6.4"></animate>
+            <animate attributeName="ry" dur="7.44s" repeatCount="indefinite" keyTimes="0;0.0593;0.0713;0.0833;0.0953;0.1073;0.1427;0.1547;0.1667;0.1787;0.1907;0.226;0.238;0.25;0.262;0.274;0.3093;0.3213;0.3333;0.3453;0.3573;0.3927;0.4047;0.4167;0.4287;0.4407;0.476;0.488;0.5;0.512;0.524;0.5593;0.5713;0.5833;0.5953;0.6073;0.6427;0.6547;0.6667;0.6787;0.6907;0.726;0.738;0.75;0.762;0.774;0.8093;0.8213;0.8333;0.8453;0.8573;0.8927;0.9047;0.9167;0.9287;0.9407;0.976;0.988;1" values="3.4;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4;5;5;5.6;5;3.4"></animate>
+          </ellipse>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES ===== -->
+  <section id="features" style="position: relative; max-width: 1240px; margin: 0 auto; padding: 120px 24px 40px">
+    <span aria-hidden="true" style="position: absolute; left: 24px; top: 96px; width: 5px; height: 5px; background: #fff"></span>
+    <span aria-hidden="true" style="position: absolute; right: 24px; top: 96px; width: 5px; height: 5px; background: #fff"></span>
+    <div class="rv" style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 14px">
+      <span class="mono" style="font-size: 12px; color: #d7f700">//FEATURES</span>
+      <h2 class="h2" style="margin: 0; font-size: 52px; line-height: 1.04; letter-spacing: -0.035em; font-weight: 500; max-width: 40rem">Privacy that earns while it waits</h2>
+      <p class="mono" style="margin: 0; font-size: 13px; color: #8a8a8a">Built for people who would rather not publish their finances.</p>
+    </div>
+    <div class="g4" style="margin-top: 64px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px 28px">
+      
+        <div class="tile rv" style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #d7f700; flex: none"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"></path></svg>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 500">Zero-knowledge exits</h3>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12px; line-height: 1.7; color: #8a8a8a">Prove you own a deposit without revealing which one.</p>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff; margin-top: 6px"></span>
+        </div>
+      
+        <div class="tile rv" style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #d7f700; flex: none"><path d="M12 3l9 5-9 5-9-5zM3 13l9 5 9-5"></path></svg>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 500">Aave + Morpho yield</h3>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12px; line-height: 1.7; color: #8a8a8a">Your USDC earns from the moment it lands.</p>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff; margin-top: 6px"></span>
+        </div>
+      
+        <div class="tile rv" style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #d7f700; flex: none"><path d="M3 7a6 3 0 1 0 12 0a6 3 0 1 0-12 0M3 7v5c0 1.7 2.7 3 6 3s6-1.3 6-3V7M9 15v2c0 1.7 2.7 3 6 3s6-1.3 6-3v-5c0-1.7-2.7-3-6-3"></path></svg>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 500">Borrow up to 70%</h3>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12px; line-height: 1.7; color: #8a8a8a">No liquidations. Repay for a fresh, unlinkable note.</p>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff; margin-top: 6px"></span>
+        </div>
+      
+        <div class="tile rv" style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #d7f700; flex: none"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 500">Zero gas fees</h3>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12px; line-height: 1.7; color: #8a8a8a">Hushfund pays the Ethereum gas. You never need to hold ETH.</p>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff; margin-top: 6px"></span>
+        </div>
+      
+        <div class="tile rv" style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #d7f700; flex: none"><path d="M15 7a4 4 0 1 0 0 0.01M12 10L4 18v3h3v-2h2v-2h2l1.5-1.5"></path></svg>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 500">No seed phrase</h3>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12px; line-height: 1.7; color: #8a8a8a">Sign in with email, Google or a passkey.</p>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff; margin-top: 6px"></span>
+        </div>
+      
+        <div class="tile rv" style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #d7f700; flex: none"><path d="M4 5h16v11H4zM8 20h8M12 16v4"></path></svg>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 500">Proofs on your device</h3>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12px; line-height: 1.7; color: #8a8a8a">Your note never leaves your browser.</p>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff; margin-top: 6px"></span>
+        </div>
+      
+        <div class="tile rv" style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #d7f700; flex: none"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 500">Withdraw to any chain</h3>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12px; line-height: 1.7; color: #8a8a8a">LI.FI bridges straight to your recipient.</p>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff; margin-top: 6px"></span>
+        </div>
+      
+        <div class="tile rv" style="display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; align-items: center; gap: 10px">
+            <svg class="ti" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="color: #d7f700; flex: none"><path d="M16 12a4 4 0 1 1-8 0a4 4 0 1 1 8 0M16 12v1.5a2.5 2.5 0 0 0 5 0V12a9 9 0 1 0-3.5 7.1"></path></svg>
+            <h3 style="margin: 0; font-size: 15px; font-weight: 500">Send to name.eth</h3>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12px; line-height: 1.7; color: #8a8a8a">Recipients can set a preferred chain and token.</p>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff; margin-top: 6px"></span>
+        </div>
+      
+    </div>
+  </section>
+
+  <!-- ===== YIELD SOURCES ===== -->
+  <section style="position: relative; max-width: 1240px; margin: 0 auto; padding: 120px 24px 40px">
+    <div class="g2" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: end">
+      <div>
+        <span class="mono" style="font-size: 12px; color: #d7f700">//YIELD SOURCES</span>
+        <h2 class="h2" style="margin: 14px 0 0; font-size: 48px; line-height: 1.05; letter-spacing: -0.035em; font-weight: 500">Two of the deepest lending markets. <span style="color: #6b6b6b">Working for your note.</span></h2>
+      </div>
+      <p class="mono" style="margin: 0; font-size: 13px; line-height: 1.75; color: #9a9a9a; max-width: 34rem">Every deposit is supplied to Aave V3 and a Morpho USDC vault on Ethereum. Your note tracks the blended growth of both, so a withdrawal pays out the deposit plus everything it earned.</p>
+    </div>
+    <div class="g2" style="margin-top: 40px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+      
+        <div class="tile" style="position: relative; border: 1px solid #1c1c1c; background: #0b0b0b; padding: 26px; display: flex; flex-direction: column; gap: 18px">
+          <span aria-hidden="true" style="position: absolute; left: -3px; top: -3px; width: 5px; height: 5px; background: #fff"></span>
+          <div style="display: flex; align-items: center; gap: 14px">
+            <img class="float" src="landing-assets/aave.png" alt="Aave V3 logo" width="52" height="52" style="width: 52px; height: 52px; border-radius: 14px; display: block; animation-delay: 0s">
+            <div>
+              <h3 style="margin: 0; font-size: 20px; font-weight: 500">Aave V3</h3>
+              <span class="mono" style="font-size: 12px; color: #8a8a8a">Lending pool · aUSDC</span>
+            </div>
+            <span class="mono" style="margin-left: auto; font-size: 12px; color: #d7f700; border: 1px solid rgba(215,247,0,0.35); padding: 4px 10px">APY <span data-live="apy-aave">—</span></span>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12.5px; line-height: 1.75; color: #9a9a9a">The largest lending market on Ethereum. USDC is supplied to the pool and accrues interest every block through Aave’s liquidity index.</p>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div class="mono" style="display: flex; justify-content: space-between; font-size: 11.5px; color: #8a8a8a"><span>Share of each deposit</span><span>~50%</span></div>
+            <div style="height: 4px; background: #1c1c1c"><div class="growx" style="width: 50%; height: 100%; background: #9896ff; animation-delay: 0s"></div></div>
+          </div>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff"></span>
+        </div>
+      
+        <div class="tile" style="position: relative; border: 1px solid #1c1c1c; background: #0b0b0b; padding: 26px; display: flex; flex-direction: column; gap: 18px">
+          <span aria-hidden="true" style="position: absolute; left: -3px; top: -3px; width: 5px; height: 5px; background: #fff"></span>
+          <div style="display: flex; align-items: center; gap: 14px">
+            <img class="float" src="landing-assets/morpho.png" alt="Morpho logo" width="52" height="52" style="width: 52px; height: 52px; border-radius: 14px; display: block; animation-delay: -3.5s">
+            <div>
+              <h3 style="margin: 0; font-size: 20px; font-weight: 500">Morpho</h3>
+              <span class="mono" style="font-size: 12px; color: #8a8a8a">ERC-4626 vault · USDC</span>
+            </div>
+            <span class="mono" style="margin-left: auto; font-size: 12px; color: #d7f700; border: 1px solid rgba(215,247,0,0.35); padding: 4px 10px">APY <span data-live="apy-morpho">—</span></span>
+          </div>
+          <p class="mono" style="margin: 0; font-size: 12.5px; line-height: 1.75; color: #9a9a9a">A curated Morpho vault that allocates USDC across isolated lending markets. Its share price grows as borrowers pay interest.</p>
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <div class="mono" style="display: flex; justify-content: space-between; font-size: 11.5px; color: #8a8a8a"><span>Share of each deposit</span><span>~50%</span></div>
+            <div style="height: 4px; background: #1c1c1c"><div class="growx" style="width: 50%; height: 100%; background: #2470ff; animation-delay: -3.5s"></div></div>
+          </div>
+          <span class="bar" style="display: block; width: 28px; height: 1px; background: #fff"></span>
+        </div>
+      
+    </div>
+  </section>
+
+  <!-- ===== PRIVACY / ANONYMITY ===== -->
+  <section style="position: relative; max-width: 1240px; margin: 0 auto; padding: 120px 24px 40px">
+    <div class="g2" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 56px; align-items: center">
+      <div class="rv" style="display: flex; flex-direction: column; gap: 18px">
+        <span class="mono" style="font-size: 12px; color: #d7f700">//PRIVACY</span>
+        <h2 class="h2" style="margin: 0; font-size: 48px; line-height: 1.05; letter-spacing: -0.035em; font-weight: 500">One of many. <span style="color: #6b6b6b">Nobody knows which.</span></h2>
+        <p class="mono" style="margin: 0; font-size: 13px; line-height: 1.75; color: #9a9a9a; max-width: 32rem">Every deposit in a vault is the same size. The chain sees that a note was withdrawn, never which one. Each deposit after yours makes the guess harder, and your yield keeps growing meanwhile.</p>
+        <div class="g2" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: #1c1c1c; border: 1px solid #1c1c1c; margin-top: 8px">
+          <div style="background: #000; padding: 18px">
+            <p class="mono" style="margin: 0; font-size: 11.5px; color: #8a8a8a">PUBLIC</p>
+            <p style="margin: 8px 0 0; font-size: 14px; color: #d4d4d4">A deposit happened. Some note was withdrawn, to which address, for how much.</p>
+          </div>
+          <div style="background: #000; padding: 18px">
+            <p class="mono" style="margin: 0; font-size: 11.5px; color: #d7f700">HIDDEN</p>
+            <p style="margin: 8px 0 0; font-size: 14px; color: #fff">Which deposit, who made it, and when, beyond a one-day window.</p>
+          </div>
+        </div>
+      </div>
+      <div class="rv" style="position: relative; border: 1px solid #1c1c1c; padding: 28px" role="img" aria-label="A grid of identical deposits; one of them, highlighted, is yours">
+        <span aria-hidden="true" style="position: absolute; left: -3px; top: -3px; width: 5px; height: 5px; background: #fff"></span>
+        <span aria-hidden="true" style="position: absolute; right: -3px; bottom: -3px; width: 5px; height: 5px; background: #fff"></span>
+        <div class="mono" style="display: flex; justify-content: space-between; font-size: 11.5px; color: #8a8a8a; margin-bottom: 18px"><span>ANONYMITY SET · 1,000 USDC VAULT</span><span data-live="anon-1000">—</span></div>
+        <div style="display: grid; grid-template-columns: repeat(24, minmax(0, 1fr)); gap: 9px 6px">
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.52s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.80s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.60s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.81s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.04s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.41s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.51s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.89s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.31s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.63s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.37s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.71s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.60s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.30s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.63s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.42s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.29s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.49s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.52s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.17s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.30s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.91s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.34s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.48s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.41s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.03s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.04s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.63s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.45s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.81s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.00s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.62s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.40s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.33s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.55s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.23s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.23s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.66s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.11s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.72s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.97s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.26s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.02s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.29s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.89s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.35s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.25s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.63s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.52s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.65s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.89s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.95s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.12s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.09s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.25s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.46s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.24s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.25s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.71s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.75s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.36s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.27s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.06s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.79s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.76s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.17s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.76s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.40s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.10s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.29s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.80s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.26s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.40s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.39s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.48s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.90s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.17s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.37s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.01s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.56s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.94s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.34s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.39s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.02s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.71s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.87s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.02s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.35s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.81s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.56s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.26s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.63s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.04s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.86s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.34s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.30s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.17s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.98s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.95s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.21s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.34s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.39s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.39s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.05s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.66s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.52s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.92s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.56s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.24s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.98s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.72s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.54s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.24s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.95s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.65s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.10s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.26s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.79s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.00s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.08s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.17s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.35s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.02s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.01s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.76s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.29s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.53s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.65s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.12s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.34s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.84s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.71s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.85s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #d7f700; box-shadow: 0 0 10px #d7f700; animation-delay: 0.95s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.70s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.49s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.78s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.48s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.28s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.97s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.09s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.62s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.31s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.33s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.54s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.44s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.23s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.45s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.17s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.80s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.77s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.51s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.45s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.51s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.88s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.60s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.10s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.30s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.28s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.54s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.18s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.49s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.27s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.95s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.06s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.68s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.21s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.99s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.80s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.19s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.32s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.65s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.09s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.44s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.04s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.75s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.79s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.59s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.17s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.37s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.11s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.17s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.60s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.62s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.37s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.91s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.15s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.18s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.90s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.50s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.02s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.39s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 1.29s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.92s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.41s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.34s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.27s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.36s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.27s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.11s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.27s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.29s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.84s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.14s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.62s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.89s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.20s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 3.07s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.27s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.67s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.66s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.40s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 0.35s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.82s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.69s"></span>
+          
+            <span class="dotc" style="width: 100%; max-width: 8px; aspect-ratio: 1; justify-self: center; background: #ffffff; box-shadow: none; animation-delay: 2.67s"></span>
+          
+        </div>
+        <div class="mono" style="display: flex; gap: 18px; margin-top: 18px; font-size: 11.5px; color: #8a8a8a"><span style="display: flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; background: #d7f700"></span>your note</span><span style="display: flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; background: #fff"></span>everyone else</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== WHY ETHEREUM (benefit rows) ===== -->
+  <section id="ethereum" style="position: relative; max-width: 1240px; margin: 0 auto; padding: 120px 24px 40px">
+    <span aria-hidden="true" style="position: absolute; left: 24px; top: 96px; width: 5px; height: 5px; background: #fff"></span>
+    <span aria-hidden="true" style="position: absolute; right: 24px; top: 96px; width: 5px; height: 5px; background: #fff"></span>
+    <div class="g2" style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; align-items: end">
+      <div>
+        <span class="mono" style="font-size: 12px; color: #d7f700">//WHY ETHEREUM</span>
+        <h2 class="h2" style="margin: 14px 0 0; font-size: 48px; line-height: 1.05; letter-spacing: -0.035em; font-weight: 500">Settled on Ethereum. <span style="color: #6b6b6b">Nothing in between.</span></h2>
+      </div>
+      <p class="mono" style="margin: 0; font-size: 13px; line-height: 1.75; color: #9a9a9a; max-width: 34rem">Hushfund runs directly on Ethereum mainnet, where USDC, Aave and Morpho are deepest. No bridge or extra chain sits between your deposit and your exit.</p>
+    </div>
+    <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 8px">
+      
+        <div class="row" style="display: grid; grid-template-columns: 56px minmax(0, 0.9fr) minmax(0, 1.4fr) 30px; gap: 20px; align-items: center; padding: 20px; background: #111; border: 1px solid #1c1c1c; color: #fff">
+          <span class="mono rdim" style="font-size: 12px; color: #d7f700">01</span>
+          <span style="font-size: 16px; font-weight: 500">Deepest USDC liquidity</span>
+          <span class="mono rdim" style="font-size: 12.5px; line-height: 1.7; color: #8a8a8a">Native USDC from Circle, and the largest Aave V3 and Morpho USDC markets. Yield is steady and withdrawals are not starved for liquidity.</span>
+          <span class="rgo" aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #fff; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-size: 14px">→</span>
+        </div>
+      
+        <div class="row" style="display: grid; grid-template-columns: 56px minmax(0, 0.9fr) minmax(0, 1.4fr) 30px; gap: 20px; align-items: center; padding: 20px; background: #111; border: 1px solid #1c1c1c; color: #fff">
+          <span class="mono rdim" style="font-size: 12px; color: #d7f700">02</span>
+          <span style="font-size: 16px; font-weight: 500">Security of the base layer</span>
+          <span class="mono rdim" style="font-size: 12.5px; line-height: 1.7; color: #8a8a8a">Deposits, proofs and payouts settle on Ethereum itself. No bridge, sequencer or sidechain stands between you and your funds.</span>
+          <span class="rgo" aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #fff; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-size: 14px">→</span>
+        </div>
+      
+        <div class="row" style="display: grid; grid-template-columns: 56px minmax(0, 0.9fr) minmax(0, 1.4fr) 30px; gap: 20px; align-items: center; padding: 20px; background: #111; border: 1px solid #1c1c1c; color: #fff">
+          <span class="mono rdim" style="font-size: 12px; color: #d7f700">03</span>
+          <span style="font-size: 16px; font-weight: 500">Verified in the open</span>
+          <span class="mono rdim" style="font-size: 12.5px; line-height: 1.7; color: #8a8a8a">Every proof is checked by an on-chain verifier contract, and every contract is published on Etherscan for anyone to read.</span>
+          <span class="rgo" aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #fff; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-size: 14px">→</span>
+        </div>
+      
+        <div class="row" style="display: grid; grid-template-columns: 56px minmax(0, 0.9fr) minmax(0, 1.4fr) 30px; gap: 20px; align-items: center; padding: 20px; background: #111; border: 1px solid #1c1c1c; color: #fff">
+          <span class="mono rdim" style="font-size: 12px; color: #d7f700">04</span>
+          <span style="font-size: 16px; font-weight: 500">Gas-free on mainnet</span>
+          <span class="mono rdim" style="font-size: 12.5px; line-height: 1.7; color: #8a8a8a">You sign, the Hushfund relayer submits and pays the Ethereum gas. Deposits, withdrawals, loans and repayments cost you no ETH.</span>
+          <span class="rgo" aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #fff; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-size: 14px">→</span>
+        </div>
+      
+        <div class="row" style="display: grid; grid-template-columns: 56px minmax(0, 0.9fr) minmax(0, 1.4fr) 30px; gap: 20px; align-items: center; padding: 20px; background: #111; border: 1px solid #1c1c1c; color: #fff">
+          <span class="mono rdim" style="font-size: 12px; color: #d7f700">05</span>
+          <span style="font-size: 16px; font-weight: 500">Exit to any chain</span>
+          <span class="mono rdim" style="font-size: 12.5px; line-height: 1.7; color: #8a8a8a">Ethereum is the hub. LI.FI bridges your withdrawal to Arbitrum, Optimism, Base and more, and ENS names resolve natively.</span>
+          <span class="rgo" aria-hidden="true" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid #fff; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-size: 14px">→</span>
+        </div>
+      
+    </div>
+  </section>
+
+  <!-- ===== SECURITY ===== -->
+  <section id="security" style="position: relative; max-width: 1240px; margin: 0 auto; padding: 120px 24px 40px">
+    <div class="g2" style="display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 56px">
+      <div class="rv" style="display: flex; flex-direction: column; gap: 16px; align-self: start">
+        <span class="mono" style="font-size: 12px; color: #d7f700">//SECURITY</span>
+        <h2 class="h2" style="margin: 0; font-size: 48px; line-height: 1.05; letter-spacing: -0.035em; font-weight: 500">Your exit can never be <span style="color: #6b6b6b">switched off.</span></h2>
+      </div>
+      <div style="display: flex; flex-direction: column">
+        
+          <div class="rv" style="display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; padding: 22px 0; border-top: 1px solid #1c1c1c">
+            <span class="mono" style="font-size: 12px; color: #d7f700">01</span>
+            <div>
+              <h3 style="margin: 0; font-size: 17px; font-weight: 500">Withdrawals cannot be paused</h3>
+              <p class="mono" style="margin: 8px 0 0; font-size: 12.5px; line-height: 1.7; color: #8a8a8a">The owner can pause new deposits and loans in an emergency. Withdrawing and repaying always stay open.</p>
+            </div>
+          </div>
+        
+          <div class="rv" style="display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; padding: 22px 0; border-top: 1px solid #1c1c1c">
+            <span class="mono" style="font-size: 12px; color: #d7f700">02</span>
+            <div>
+              <h3 style="margin: 0; font-size: 17px; font-weight: 500">Relayers cannot redirect funds</h3>
+              <p class="mono" style="margin: 8px 0 0; font-size: 12.5px; line-height: 1.7; color: #8a8a8a">Recipient, relayer fee and loan amount are hashed into the proof. Change any of them and verification fails.</p>
+            </div>
+          </div>
+        
+          <div class="rv" style="display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; padding: 22px 0; border-top: 1px solid #1c1c1c">
+            <span class="mono" style="font-size: 12px; color: #d7f700">03</span>
+            <div>
+              <h3 style="margin: 0; font-size: 17px; font-weight: 500">No front-running</h3>
+              <p class="mono" style="margin: 8px 0 0; font-size: 12.5px; line-height: 1.7; color: #8a8a8a">Your USDC signature is bound to your own note, so nobody can reuse it for a deposit of theirs.</p>
+            </div>
+          </div>
+        
+          <div class="rv" style="display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; padding: 22px 0; border-top: 1px solid #1c1c1c">
+            <span class="mono" style="font-size: 12px; color: #d7f700">04</span>
+            <div>
+              <h3 style="margin: 0; font-size: 17px; font-weight: 500">Always fully backed</h3>
+              <p class="mono" style="margin: 8px 0 0; font-size: 12.5px; line-height: 1.7; color: #8a8a8a">Funds are split in the same ratio payouts use, and new notes start at the next yield bucket. The vault never owes more than it holds.</p>
+            </div>
+          </div>
+        
+          <div class="rv" style="display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; padding: 22px 0; border-top: 1px solid #1c1c1c">
+            <span class="mono" style="font-size: 12px; color: #d7f700">05</span>
+            <div>
+              <h3 style="margin: 0; font-size: 17px; font-weight: 500">Time-locked strategy changes</h3>
+              <p class="mono" style="margin: 8px 0 0; font-size: 12.5px; line-height: 1.7; color: #8a8a8a">Moving funds to another Aave or Morpho market needs two public days of notice, enough to leave first.</p>
+            </div>
+          </div>
+        
+          <div class="rv" style="display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; padding: 22px 0; border-top: 1px solid #1c1c1c">
+            <span class="mono" style="font-size: 12px; color: #d7f700">06</span>
+            <div>
+              <h3 style="margin: 0; font-size: 17px; font-weight: 500">Multisig ownership, capped fees</h3>
+              <p class="mono" style="margin: 8px 0 0; font-size: 12.5px; line-height: 1.7; color: #8a8a8a">Admin rights sit with a multisig and transfer in two steps. Protocol fees are capped at 1% in the contract.</p>
+            </div>
+          </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FAQ ===== -->
+  <section id="faq" style="max-width: 920px; margin: 0 auto; padding: 120px 24px 40px">
+    <div class="rv" style="text-align: center">
+      <span class="mono" style="font-size: 12px; color: #d7f700">//FAQ</span>
+      <h2 class="h2" style="margin: 14px 0 0; font-size: 48px; letter-spacing: -0.035em; font-weight: 500">Questions</h2>
+    </div>
+    <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 8px">
+      
+        <details class="rv" style="border: 1px solid #1c1c1c; background: #0b0b0b; padding: 18px 20px">
+          <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 16px; font-weight: 500">
+            What is a note?
+            <span class="pl mono" aria-hidden="true" style="flex: none; width: 28px; height: 28px; border: 1px solid #3a3a3a; display: flex; align-items: center; justify-content: center; color: #d7f700">+</span>
+          </summary>
+          <p class="mono" style="margin: 14px 0 0; font-size: 13px; line-height: 1.75; color: #9a9a9a">A secret string your browser creates when you deposit. It is the only way to withdraw or borrow against that deposit. Hushfund never sees it and cannot recover it, so keep a copy somewhere safe.</p>
+        </details>
+      
+        <details class="rv" style="border: 1px solid #1c1c1c; background: #0b0b0b; padding: 18px 20px">
+          <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 16px; font-weight: 500">
+            How private is it?
+            <span class="pl mono" aria-hidden="true" style="flex: none; width: 28px; height: 28px; border: 1px solid #3a3a3a; display: flex; align-items: center; justify-content: center; color: #d7f700">+</span>
+          </summary>
+          <p class="mono" style="margin: 14px 0 0; font-size: 13px; line-height: 1.75; color: #9a9a9a">The chain shows that a deposit happened and that some note was withdrawn, not which one. Privacy grows with the number of deposits after yours. Withdrawing straight away, or back to the wallet you deposited from, makes you easier to trace.</p>
+        </details>
+      
+        <details class="rv" style="border: 1px solid #1c1c1c; background: #0b0b0b; padding: 18px 20px">
+          <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 16px; font-weight: 500">
+            Where does the yield come from?
+            <span class="pl mono" aria-hidden="true" style="flex: none; width: 28px; height: 28px; border: 1px solid #3a3a3a; display: flex; align-items: center; justify-content: center; color: #d7f700">+</span>
+          </summary>
+          <p class="mono" style="margin: 14px 0 0; font-size: 13px; line-height: 1.75; color: #9a9a9a">Your USDC is supplied to Aave V3 and a Morpho USDC vault on Ethereum. The rate floats with those markets.</p>
+        </details>
+      
+        <details class="rv" style="border: 1px solid #1c1c1c; background: #0b0b0b; padding: 18px 20px">
+          <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 16px; font-weight: 500">
+            What does it cost?
+            <span class="pl mono" aria-hidden="true" style="flex: none; width: 28px; height: 28px; border: 1px solid #3a3a3a; display: flex; align-items: center; justify-content: center; color: #d7f700">+</span>
+          </summary>
+          <p class="mono" style="margin: 14px 0 0; font-size: 13px; line-height: 1.75; color: #9a9a9a">Gas is free: Hushfund pays the Ethereum gas for every deposit, withdrawal, loan and repayment. The only cost is a protocol fee of <span data-live="fee">—</span>% on withdrawals, shown before you confirm.</p>
+        </details>
+      
+        <details class="rv" style="border: 1px solid #1c1c1c; background: #0b0b0b; padding: 18px 20px">
+          <summary style="display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 16px; font-weight: 500">
+            What happens when I borrow?
+            <span class="pl mono" aria-hidden="true" style="flex: none; width: 28px; height: 28px; border: 1px solid #3a3a3a; display: flex; align-items: center; justify-content: center; color: #d7f700">+</span>
+          </summary>
+          <p class="mono" style="margin: 14px 0 0; font-size: 13px; line-height: 1.75; color: #9a9a9a">You receive up to 70% of your note’s value. The debt grows at the vault’s yield rate, the same as your collateral, so there are no liquidations. Repay any time to unlock the deposit and get a fresh note.</p>
+        </details>
+      
+    </div>
+  </section>
+
+  <!-- ===== CLOSING: dot horizon + wordmark ===== -->
+  <section style="position: relative; margin-top: 80px; padding: 120px 24px 72px; text-align: center; overflow: hidden">
+    <div aria-hidden="true" style="position: absolute; left: 50%; top: 0; width: 900px; height: 260px; transform: translateX(-50%); background-image: radial-gradient(rgba(255,255,255,0.55) 1px, transparent 1.4px); background-size: 7px 7px; -webkit-mask-image: radial-gradient(50% 60% at 50% 100%, #000 10%, transparent 70%); mask-image: radial-gradient(50% 60% at 50% 100%, #000 10%, transparent 70%)"></div>
+    <div aria-hidden="true" class="pulse" style="position: absolute; left: 50%; top: 200px; width: 700px; height: 120px; transform: translateX(-50%); background: radial-gradient(closest-side, rgba(215,247,0,0.22), transparent); filter: blur(10px); animation-duration: 5s"></div>
+    <div aria-hidden="true" style="position: absolute; left: 10%; right: 10%; top: 258px; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)"></div>
+    <div class="rv" style="position: relative; display: flex; flex-direction: column; align-items: center; gap: 22px; padding-top: 170px">
+      <h2 class="word" style="margin: 0; font-size: 120px; line-height: 0.95; letter-spacing: -0.05em; font-weight: 500">Hushfund<span style="color: #d7f700">.</span></h2>
+      <p class="mono" style="margin: 0; font-size: 11.5px; color: #8a8a8a; letter-spacing: 0.04em">Hushfund · hushfund.app</p>
+      <a class="btn btn-l mono" href="https://hushfund.app" data-app style="margin-top: 12px; padding: 14px 24px; background: #d7f700; color: #0a0b00; font-size: 13.5px; font-weight: 500; border-radius: 4px">Start with one deposit <span class="ar" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER COLUMNS ===== -->
+  <footer style="border-top: 1px solid #1c1c1c">
+    <div class="g4" style="max-width: 1240px; margin: 0 auto; padding: 48px 24px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; font-size: 13px">
+      <div style="display: flex; flex-direction: column; gap: 9px"><span class="mono" style="font-size: 11.5px; color: #6b6b6b">Product</span><a class="nl" href="https://hushfund.app/app">App</a><a class="nl" href="https://hushfund.app/app/deposit">Deposit</a><a class="nl" href="https://hushfund.app/app/withdraw">Withdraw</a><a class="nl" href="https://hushfund.app/app/borrow">Borrow</a></div>
+      <div style="display: flex; flex-direction: column; gap: 9px"><span class="mono" style="font-size: 11.5px; color: #6b6b6b">Learn</span><a class="nl" href="https://hushfund.app/docs">Docs</a><a class="nl" href="https://hushfund.app/docs?guide=1">Guide</a><a class="nl" href="https://hushfund.app/docs#faq">FAQ</a></div>
+      <div style="display: flex; flex-direction: column; gap: 9px"><span class="mono" style="font-size: 11.5px; color: #6b6b6b">Information</span><a class="nl" href="./mechanism.html">Mechanism</a><a class="nl" href="./privacy.html">Privacy limits</a><a class="nl" href="./risks.html">Risks</a></div>
+      <div style="display: flex; flex-direction: column; gap: 9px"><span class="mono" style="font-size: 11.5px; color: #6b6b6b">Social</span><a class="nl" href="https://x.com/Hushfund_">X</a><a class="nl" href="https://github.com/hushfund">GitHub</a><a class="nl" href="mailto:hello@husfund.app">hello@husfund.app</a></div>
+    </div>
+    <div style="max-width: 1240px; margin: 0 auto; padding: 18px 24px 22px; border-top: 1px solid #1c1c1c; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; font-size: 12px; color: #6b6b6b" class="mono">
+      <span>© 2026 Hushfund. All rights reserved.</span>
+      <span>Smart contracts are open source. Use at your own risk.</span>
+    </div>
+  </footer>
+
+</div>
+<script>
+/* Where every "Launch app" button points. Change this one line if the app lives on another domain (e.g. https://app.hushfund.app). */
+var HUSHFUND_APP_URL = 'https://hushfund.app';
+(function () {
+  document.querySelectorAll('a[data-app]').forEach(function (a) { a.href = HUSHFUND_APP_URL; });
+  var SUP = '\u2070\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079';
+  function sup(n) { return String(n).split('').map(function (c) { return SUP[+c]; }).join(''); }
+  var defs = [
+    { from: 0, to: 70, fmt: function (n) { return n + '%'; } },
+    { from: 0, to: 20, fmt: function (n) { return '2' + sup(n); } },
+    { from: 9, to: 0, fmt: function (n) { return n + ' ETH'; } },
+    { from: 0, to: 2, fmt: function (n) { return n + (n === 1 ? ' day' : ' days'); } }
+  ];
+  var els = document.querySelectorAll('[data-stat]');
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function paint(t) {
+    els.forEach(function (el) {
+      var i = +el.getAttribute('data-stat'), d = defs[i];
+      var k = Math.min(1, Math.max(0, (t - i * 0.12) / 0.6)), e = 1 - Math.pow(1 - k, 3);
+      el.textContent = d.fmt(Math.round(d.from + (d.to - d.from) * e));
+      el.style.color = k >= 1 ? '#ffffff' : '#d7f700';
+      el.style.filter = k >= 1 || k <= 0 ? 'none' : 'blur(' + ((1 - k) * 1.2).toFixed(2) + 'px)';
+    });
+  }
+  paint(0);
+  var started = false;
+  function run() {
+    if (started) return; started = true;
+    var t0 = null;
+    requestAnimationFrame(function step(now) {
+      if (t0 === null) t0 = now;
+      var t = Math.min(1, (now - t0) / 2200);
+      paint(t);
+      if (t < 1) requestAnimationFrame(step);
+    });
+  }
+  var box = document.getElementById('stats');
+  if (box && 'IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (en) { if (en.some(function (x) { return x.isIntersecting; })) { run(); io.disconnect(); } }, { threshold: 0.3 });
+    io.observe(box);
+    setTimeout(run, 4000);
+  } else run();
+})();
+</script>
+<script>var API_BASE = '%MODE%' === 'development' ? '/api' : 'https://hushfund.app/api'; /* Preview uses the local backend; ENS/IPFS uses the public read-only Mainnet backend. */</script>
+<script src="landing-mainnet.js" defer></script>
+<script src="landing-scroll.js" defer></script>
+</body>
+</html>

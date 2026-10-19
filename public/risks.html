@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Risks · Hushfund</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Contract, protocol, liquidity, USDC, key-loss, operational and owner-power risks of using Hushfund.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="canonical" href="https://hushfund.eth.limo/risks.html">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://hushfund.eth.limo/risks.html">
+<meta property="og:title" content="Risks · Hushfund">
+<meta property="og:description" content="Contract, protocol, liquidity, USDC, key-loss, operational and owner-power risks of using Hushfund.">
+<meta property="og:image" content="https://hushfund.eth.limo/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Hushfund_">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="./information.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="top"><div class="in">
+<a class="brand mono" href="./" aria-label="Hushfund home"><svg width="24" height="24" viewBox="100 110 1080 1080" fill="#d7f700" color="#d7f700" aria-hidden="true"><rect x="127" y="288" width="650" height="140"></rect><rect x="127" y="288" width="143" height="284"></rect><circle cx="944" cy="357" r="163" fill="none" stroke="currentColor" stroke-width="136"></circle><path d="M127 712A503.6 503.6 0 0 0 1129 712L982 712A362 362 0 0 1 274 712Z"></path><circle cx="628" cy="612" r="90"></circle><path d="M565 672H691L735 840H522Z"></path></svg><span>HUSHFUND</span></a>
+<nav class="tabs mono" aria-label="Information"><a href="./mechanism.html">Mechanism</a><a href="./privacy.html">Privacy limits</a><a href="./risks.html" aria-current="page">Risks</a><a href="https://hushfund.app/docs">Docs</a></nav>
+<a class="cta mono" href="https://hushfund.app">Launch app <span aria-hidden="true">›</span></a>
+</div></header>
+<div class="wrap">
+<nav class="toc mono" aria-label="On this page"><p>ON THIS PAGE</p><ol><li><a href="#contracts">Contract, circuit and dependency risk</a></li><li><a href="#strategies">Strategy and liquidity risk</a></li><li><a href="#usdc">USDC risk</a></li><li><a href="#keys">Note, device and backup loss</a></li><li><a href="#ops">Operational and sponsorship risk</a></li><li><a href="#owner">Owner powers</a></li><li><a href="#privacy">Privacy risk</a></li></ol></nav>
+<main id="content">
+<span class="kick mono">//RISKS</span>
+<h1>Read this before you move money.</h1>
+<p class="lede">Hushfund is software on public infrastructure. These are the ways it can fail or cost you funds.</p>
+<section id="contracts" class="rv" aria-labelledby="contracts-h"><h2 id="contracts-h"><span class="n mono">01</span>Contract, circuit and dependency risk</h2>
+<p>Bugs in the vault, the verifier, the circuits or their dependencies, including the in-browser proving library, could lead to loss of funds. Always verify contract addresses on a block explorer before interacting; addresses shown in the app come from its configuration.</p>
+</section>
+<section id="strategies" class="rv" aria-labelledby="strategies-h"><h2 id="strategies-h"><span class="n mono">02</span>Strategy and liquidity risk</h2>
+<p>Deposits are supplied to Aave V3 and a Morpho ERC-4626 vault. Those protocols could suffer exploits, bad debt or temporary illiquidity that delays or reduces withdrawals. Losses in those protocols would affect the vault. Yield is variable and can fall to near zero.</p>
+<p>The displayed TVL is gross backing value, not immediately withdrawable liquidity.</p>
+</section>
+<section id="usdc" class="rv" aria-labelledby="usdc-h"><h2 id="usdc-h"><span class="n mono">03</span>USDC risk</h2>
+<p>Hushfund holds native Circle USDC. The issuer can freeze addresses, and the token could lose its peg. Dollar displays assume 1 USDC equals $1; no external price feed is used.</p>
+</section>
+<section id="keys" class="rv" aria-labelledby="keys-h"><h2 id="keys-h"><span class="n mono">04</span>Note, device and backup loss</h2>
+<p>Hushfund cannot reset note secrets or backup passwords. Without another saved copy, losing them can mean losing access to funds. A compromised device or browser extension can expose your notes, and anyone with a note can withdraw it. After a repayment only the replacement note is valid.</p>
+</section>
+<section id="ops" class="rv" aria-labelledby="ops-h"><h2 id="ops-h"><span class="n mono">05</span>Operational and sponsorship risk</h2>
+<p>The relayer, API or sign-in service can go down. Gas sponsorship is limited by per-wallet quotas and a shared daily budget, can end at any time, and some actions can fall back to requiring your own ETH. If a tab closes mid-flow, a submitted transaction may still confirm; import your note on My Notes to check its on-chain state.</p>
+</section>
+<section id="owner" class="rv" aria-labelledby="owner-h"><h2 id="owner-h"><span class="n mono">06</span>Owner powers</h2>
+<p>As documented for the contracts:</p>
+<ul><li>The owner can <strong>pause new deposits and new loans</strong>. The contract does not allow pausing withdrawals or repayments.</li>
+<li>The owner can change the protocol fee per vault, <strong>capped at 100 bps (1%)</strong>. The fee in effect at execution applies.</li>
+<li>The owner can propose a strategy migration, which waits <strong>at least 2 days</strong> after it is proposed, giving time to withdraw.</li></ul>
+</section>
+<section id="privacy" class="rv" aria-labelledby="privacy-h"><h2 id="privacy-h"><span class="n mono">07</span>Privacy risk</h2>
+<p>Privacy is limited and not guaranteed. Public deposits, amounts, timing, recipients and network metadata can reveal links. Read <a href="./privacy.html">Privacy limits</a> before relying on it.</p>
+</section>
+<p>The full reference, including contract addresses loaded from the app configuration and troubleshooting, is in the <a href="https://hushfund.app/docs">Hushfund Docs</a>.</p>
+<nav class="next" aria-label="More information"><a href="./mechanism.html"><small class="mono">READ NEXT</small>Mechanism</a><a href="./privacy.html"><small class="mono">READ NEXT</small>Privacy limits</a></nav>
+</main>
+</div>
+<footer class="foot"><div class="in"><span class="mono">HUSHFUND · Ethereum Mainnet</span>
+<nav aria-label="Footer"><a href="./">Home</a><a href="./mechanism.html">Mechanism</a><a href="./privacy.html">Privacy limits</a><a href="./risks.html">Risks</a><a href="https://hushfund.app/docs">Docs</a><a href="https://hushfund.app">App</a><a href="https://x.com/Hushfund_">X</a><a href="https://github.com/hushfund">GitHub</a></nav></div></footer>
+<script src="./information.js" defer></script>
+</body>
+</html>

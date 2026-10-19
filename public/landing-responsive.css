@@ -1,0 +1,105 @@
+/* Responsive + scroll-state overrides for the Hushfund landing.
+   Loaded after the inline <style>; inline style attributes are overridden with !important. */
+
+/* overflow-x:hidden turns .hf into a scroll container and breaks the sticky header.
+   clip prevents horizontal overflow without creating a scroll container. */
+html, body { overflow-x: clip; }
+.hf { overflow-x: clip !important; }
+@supports not (overflow: clip) {
+  .hf { overflow-x: visible !important; }
+  body { overflow-x: hidden; }
+}
+.hf img, .hf svg { max-width: 100%; }
+.hf h1, .hf h2, .hf p { overflow-wrap: break-word; }
+
+/* ---------- sticky header: light at top, frosted once scrolled ---------- */
+.hf > header {
+  transition: background-color .35s ease, border-color .35s ease, box-shadow .35s ease;
+}
+.hf-js .hf > header {
+  background: rgba(0,0,0,.42) !important;
+  -webkit-backdrop-filter: blur(6px) saturate(120%) !important;
+  backdrop-filter: blur(6px) saturate(120%) !important;
+  border-bottom-color: transparent !important;
+}
+.hf-js.hf-scrolled .hf > header {
+  background: rgba(0,0,0,.66) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(150%) !important;
+  backdrop-filter: blur(18px) saturate(150%) !important;
+  border-bottom-color: #1c1c1c !important;
+  box-shadow: 0 10px 30px -18px rgba(0,0,0,.9);
+}
+
+/* ---------- blur-to-clear reveal (only when JS opts in) ---------- */
+.hf-js .hf [data-reveal]:not(.is-in) {
+  opacity: 0;
+  filter: blur(8px);
+  transform: translateY(16px);
+}
+.hf-js .hf [data-reveal] {
+  transition: opacity .8s cubic-bezier(.2,.75,.2,1), filter .8s cubic-bezier(.2,.75,.2,1), transform .8s cubic-bezier(.2,.75,.2,1);
+}
+.hf-js .hf [data-reveal].is-in { opacity: 1; filter: none; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hf-js .hf [data-reveal]:not(.is-in) { opacity: 1; filter: none; transform: none; }
+}
+
+/* ---------- tablet ---------- */
+@media (max-width: 1100px) {
+  .hf .h1 { font-size: 56px !important; }
+  .hf .word { font-size: 96px !important; }
+}
+
+@media (max-width: 900px) {
+  .hf .g2 { gap: 32px !important; }
+  /* hero: copy first, artwork centred and capped beneath it */
+  .hf > section:first-of-type > .g2 { padding: 56px 20px 40px !important; }
+  .hf > section:first-of-type > .g2 > div:last-child { max-width: 460px; width: 100%; margin: 0 auto; }
+  .hf > section:first-of-type > div[aria-hidden] {
+    -webkit-mask-image: radial-gradient(80% 45% at 50% 72%, #000 20%, transparent 75%) !important;
+    mask-image: radial-gradient(80% 45% at 50% 72%, #000 20%, transparent 75%) !important;
+  }
+  .hf > section:first-of-type > div[aria-hidden] > div { left: 0 !important; }
+  .hf .h1 { font-size: clamp(34px, 6.4vw, 48px) !important; line-height: 1.05 !important; }
+  .hf .h2 { font-size: clamp(28px, 5vw, 36px) !important; }
+  .hf .word { font-size: clamp(52px, 13vw, 88px) !important; }
+  .hf section[id] { padding-top: 88px !important; padding-left: 20px !important; padding-right: 20px !important; }
+  .hf #stats { padding-left: 20px !important; padding-right: 20px !important; gap: 28px 20px !important; }
+  .hf #stats .num-roll { font-size: 34px !important; }
+  .hf footer .g4 { padding: 40px 20px !important; gap: 32px 20px !important; }
+  .hf footer > div:last-child { padding-left: 20px !important; padding-right: 20px !important; }
+  .hf footer .nl { display: inline-flex; align-items: center; min-height: 36px; }
+  .hf > section:last-of-type { padding-left: 20px !important; padding-right: 20px !important; }
+  .hf > header > div { padding: 0 20px !important; }
+}
+
+/* ---------- phone ---------- */
+@media (max-width: 600px) {
+  .hf { font-size: 15px !important; }
+  .hf > section:first-of-type > .g2 { padding: 40px 18px 32px !important; }
+  .hf .h1 { font-size: clamp(31px, 8.6vw, 40px) !important; letter-spacing: -0.035em !important; }
+  .hf .h1 > span { display: block; margin-top: 6px; font-size: .62em; line-height: 1.18; letter-spacing: -0.02em; }
+  .hf .h2 { font-size: clamp(26px, 7.4vw, 32px) !important; line-height: 1.1 !important; }
+  .hf .word { font-size: clamp(46px, 16vw, 72px) !important; }
+  .hf section[id] { padding: 72px 18px 32px !important; }
+  .hf #stats { padding: 0 18px 44px !important; }
+  .hf #stats .num-roll { font-size: 30px !important; }
+  .hf > section:first-of-type .btn { flex: 1 1 100%; justify-content: center; min-height: 48px; }
+  .hf .btn { min-height: 44px; }
+  .hf > header .btn { min-height: 40px; padding: 9px 14px !important; }
+  .hf details summary { min-height: 44px; }
+  .hf #ethereum .row { gap: 12px !important; padding: 16px !important; }
+  .hf footer > div:last-child { flex-direction: column; }
+  /* the closing section: keep the dot horizon inside the viewport */
+  .hf > section:last-of-type { padding-top: 88px !important; padding-bottom: 56px !important; }
+  .hf > section:last-of-type > .rv { padding-top: 140px !important; }
+}
+
+@media (max-width: 360px) {
+  .hf .g4 { grid-template-columns: minmax(0,1fr) !important; }
+  .hf #stats { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+  .hf #stats .num-roll { font-size: 26px !important; }
+  .hf > header > div { gap: 12px !important; padding: 0 14px !important; }
+  .hf > header .mono[style*="letter-spacing"] { letter-spacing: .16em !important; }
+}

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Privacy limits · Hushfund</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="What Hushfund hides, what stays public, and where privacy can fail. No guaranteed anonymity.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="canonical" href="https://hushfund.eth.limo/privacy.html">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://hushfund.eth.limo/privacy.html">
+<meta property="og:title" content="Privacy limits · Hushfund">
+<meta property="og:description" content="What Hushfund hides, what stays public, and where privacy can fail. No guaranteed anonymity.">
+<meta property="og:image" content="https://hushfund.eth.limo/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Hushfund_">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="./information.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="top"><div class="in">
+<a class="brand mono" href="./" aria-label="Hushfund home"><svg width="24" height="24" viewBox="100 110 1080 1080" fill="#d7f700" color="#d7f700" aria-hidden="true"><rect x="127" y="288" width="650" height="140"></rect><rect x="127" y="288" width="143" height="284"></rect><circle cx="944" cy="357" r="163" fill="none" stroke="currentColor" stroke-width="136"></circle><path d="M127 712A503.6 503.6 0 0 0 1129 712L982 712A362 362 0 0 1 274 712Z"></path><circle cx="628" cy="612" r="90"></circle><path d="M565 672H691L735 840H522Z"></path></svg><span>HUSHFUND</span></a>
+<nav class="tabs mono" aria-label="Information"><a href="./mechanism.html">Mechanism</a><a href="./privacy.html" aria-current="page">Privacy limits</a><a href="./risks.html">Risks</a><a href="https://hushfund.app/docs">Docs</a></nav>
+<a class="cta mono" href="https://hushfund.app">Launch app <span aria-hidden="true">›</span></a>
+</div></header>
+<div class="wrap">
+<nav class="toc mono" aria-label="On this page"><p>ON THIS PAGE</p><ol><li><a href="#scope">What Hushfund does and does not hide</a></li><li><a href="#public">What is public on-chain</a></li><li><a href="#set">Anonymity set and correlation</a></li><li><a href="#metadata">RPC, relayer and network metadata</a></li><li><a href="#accounts">Sign-in, embedded and external wallets</a></li><li><a href="#local">Local notes, backups and lost secrets</a></li></ol></nav>
+<main id="content">
+<span class="kick mono">//PRIVACY LIMITS</span>
+<h1>Private is not invisible.</h1>
+<p class="lede">Hushfund reduces on-chain linkability. It does not guarantee anonymity. Here is exactly what stays visible.</p>
+<section id="scope" class="rv" aria-labelledby="scope-h"><h2 id="scope-h"><span class="n mono">01</span>What Hushfund does and does not hide</h2>
+<p>Hushfund reduces on-chain linkability between a deposit and a later withdrawal by proving membership in a Merkle tree instead of naming a specific deposit. It does <strong>not</strong> make you anonymous.</p>
+<div class="note"><p>Hushfund does not provide perfect or guaranteed anonymity. Timing, amounts, recipients, network metadata and your own behaviour can all reveal links. You remain responsible for complying with the law.</p></div>
+</section>
+<section id="public" class="rv" aria-labelledby="public-h"><h2 id="public-h"><span class="n mono">02</span>What is public on-chain</h2>
+<ul><li><strong>Deposits are public transactions.</strong> The funding wallet, the vault (and therefore the amount: 10, 50, 100 or 1000 USDC) and the time are visible.</li>
+<li><strong>Withdrawals are public.</strong> The recipient address, the vault, the time and the payout are visible.</li>
+<li><strong>Loans and repayments are public</strong>, including recipients and amounts. A repayment inserts a new note to reduce linkability, but it does not erase history.</li></ul>
+</section>
+<section id="set" class="rv" aria-labelledby="set-h"><h2 id="set-h"><span class="n mono">03</span>Anonymity set and correlation</h2>
+<p>Privacy depends on how many other notes share your denomination and yield bucket. A small set means fewer plausible sources for a withdrawal.</p>
+<ul><li>Withdrawing soon after depositing makes timing correlation easy.</li><li>Withdrawing to an address linked to you, or to the same address that deposited, can make the link obvious.</li><li>Unusual patterns, such as distinctive amounts across several notes or regular schedules, can be matched.</li><li>Borrowing and repaying around the same time as other public activity can connect the loan to a later withdrawal.</li></ul>
+</section>
+<section id="metadata" class="rv" aria-labelledby="metadata-h"><h2 id="metadata-h"><span class="n mono">04</span>RPC, relayer and network metadata</h2>
+<p>The API server, the relayer, your RPC provider and the sign-in provider can see network metadata such as IP addresses and request timing. The relayer submits sponsored transactions and sees the action details it is asked to relay. Zero-knowledge proofs do not hide this layer.</p>
+</section>
+<section id="accounts" class="rv" aria-labelledby="accounts-h"><h2 id="accounts-h"><span class="n mono">05</span>Sign-in, embedded and external wallets</h2>
+<p>You can use an embedded wallet or a supported external wallet. An external wallet connection is not always the same as an authenticated sign-in. The selected wallet holds USDC and signs authorizations for deposits and repayments; withdrawals and loans pay out to the recipient you enter.</p>
+<p>Your sign-in and your notes are separate. The sign-in account does not own a deposit and does not give access to a note. Anyone holding a note can withdraw it from any wallet. The wallet you sign in with is linked to the deposits and repayments it funds.</p>
+</section>
+<section id="local" class="rv" aria-labelledby="local-h"><h2 id="local-h"><span class="n mono">06</span>Local notes, backups and lost secrets</h2>
+<p>Notes are generated in your browser and never sent to a server. By default they live only in memory for the current tab. You can opt in to keeping them in local storage; then anyone with access to the browser profile, an extension with page access, or malware could read them. Clearing site data deletes them.</p>
+<p>The optional <code>hushfund-recovery.json</code> backup is encrypted in your browser with AES-256-GCM using a key derived from your recovery password (PBKDF2-SHA-256, 250,000 iterations, minimum 12 characters). The password is never stored or sent.</p>
+<div class="note"><p>Support cannot recover a note. A forgotten backup password cannot be reset, and a backup without its password is useless. Browser storage is never a backup.</p></div>
+</section>
+<p>The full reference, including contract addresses loaded from the app configuration and troubleshooting, is in the <a href="https://hushfund.app/docs">Hushfund Docs</a>.</p>
+<nav class="next" aria-label="More information"><a href="./mechanism.html"><small class="mono">READ NEXT</small>Mechanism</a><a href="./risks.html"><small class="mono">READ NEXT</small>Risks</a></nav>
+</main>
+</div>
+<footer class="foot"><div class="in"><span class="mono">HUSHFUND · Ethereum Mainnet</span>
+<nav aria-label="Footer"><a href="./">Home</a><a href="./mechanism.html">Mechanism</a><a href="./privacy.html">Privacy limits</a><a href="./risks.html">Risks</a><a href="https://hushfund.app/docs">Docs</a><a href="https://hushfund.app">App</a><a href="https://x.com/Hushfund_">X</a><a href="https://github.com/hushfund">GitHub</a></nav></div></footer>
+<script src="./information.js" defer></script>
+</body>
+</html>

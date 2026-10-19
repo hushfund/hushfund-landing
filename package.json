@@ -1,0 +1,22 @@
+{
+  "name": "hushfund-landing",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "author": "Hushfund",
+  "description": "Hushfund marketing website and mechanism, privacy and risk pages for ENS/IPFS hosting.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hushfund/hushfund-landing.git"
+  },
+  "scripts": {
+    "dev": "vite --host 0.0.0.0",
+    "build": "vite build",
+    "preview": "vite preview --host 0.0.0.0",
+    "test": "node --test tests/*.test.ts"
+  },
+  "devDependencies": {
+    "vite": "6.4.4"
+  }
+}

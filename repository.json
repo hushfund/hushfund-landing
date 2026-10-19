@@ -1,0 +1,15 @@
+{
+  "name": "hushfund-landing",
+  "description": "Hushfund marketing website and mechanism, privacy and risk pages for ENS/IPFS hosting.",
+  "homepage": "https://hushfund.eth.limo",
+  "visibility": "public",
+  "topics": [
+    "hushfund",
+    "ethereum",
+    "usdc",
+    "mainnet",
+    "open-source"
+  ],
+  "has_wiki": false,
+  "has_projects": false
+}

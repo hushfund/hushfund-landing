@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mechanism · Hushfund</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="How Hushfund works: fixed USDC deposits, browser zero-knowledge proofs, Aave and Morpho yield, withdrawals, borrowing and repayment.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<link rel="canonical" href="https://hushfund.eth.limo/mechanism.html">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://hushfund.eth.limo/mechanism.html">
+<meta property="og:title" content="Mechanism · Hushfund">
+<meta property="og:description" content="How Hushfund works: fixed USDC deposits, browser zero-knowledge proofs, Aave and Morpho yield, withdrawals, borrowing and repayment.">
+<meta property="og:image" content="https://hushfund.eth.limo/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@Hushfund_">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="./information.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to content</a>
+<header class="top"><div class="in">
+<a class="brand mono" href="./" aria-label="Hushfund home"><svg width="24" height="24" viewBox="100 110 1080 1080" fill="#d7f700" color="#d7f700" aria-hidden="true"><rect x="127" y="288" width="650" height="140"></rect><rect x="127" y="288" width="143" height="284"></rect><circle cx="944" cy="357" r="163" fill="none" stroke="currentColor" stroke-width="136"></circle><path d="M127 712A503.6 503.6 0 0 0 1129 712L982 712A362 362 0 0 1 274 712Z"></path><circle cx="628" cy="612" r="90"></circle><path d="M565 672H691L735 840H522Z"></path></svg><span>HUSHFUND</span></a>
+<nav class="tabs mono" aria-label="Information"><a href="./mechanism.html" aria-current="page">Mechanism</a><a href="./privacy.html">Privacy limits</a><a href="./risks.html">Risks</a><a href="https://hushfund.app/docs">Docs</a></nav>
+<a class="cta mono" href="https://hushfund.app">Launch app <span aria-hidden="true">›</span></a>
+</div></header>
+<div class="wrap">
+<nav class="toc mono" aria-label="On this page"><p>ON THIS PAGE</p><ol><li><a href="#overview">Overview</a></li><li><a href="#deposit">Fixed deposits</a></li><li><a href="#notes">Notes, proofs, Merkle tree and nullifier</a></li><li><a href="#yield">Variable yield from Aave and Morpho</a></li><li><a href="#withdraw">Withdrawal, fees and liquidity</a></li><li><a href="#borrow">Borrowing against a note</a></li><li><a href="#repay">Repayment and replacement notes</a></li><li><a href="#sponsorship">Gas sponsorship and its limits</a></li></ol></nav>
+<main id="content">
+<span class="kick mono">//MECHANISM</span>
+<h1>How a Hushfund note works.</h1>
+<p class="lede">Fixed USDC deposits on Ethereum Mainnet, proven in your browser, earning variable yield until you withdraw, borrow or repay.</p>
+<section id="overview" class="rv" aria-labelledby="overview-h"><h2 id="overview-h"><span class="n mono">01</span>Overview</h2>
+<p>Hushfund is a fixed-denomination private vault for USDC on Ethereum Mainnet. Each deposit creates a <strong>note</strong>: a secret string generated in your browser. The vault stores only a commitment, a hash of that note, in a Merkle tree. Later you prove with a zero-knowledge proof that you know a note in the tree, without revealing which one.</p>
+<p>While deposited, funds are supplied to Aave and a Morpho vault and earn variable yield. You can withdraw a note once, or borrow against it and later repay.</p>
+<div class="note"><p>The note is the only key to a deposit. Losing it means losing the funds. Sharing it means giving the funds away.</p></div>
+</section>
+<section id="deposit" class="rv" aria-labelledby="deposit-h"><h2 id="deposit-h"><span class="n mono">02</span>Fixed deposits</h2>
+<p>Only native Circle USDC on Ethereum Mainnet (chain ID 1) is accepted. Bridged or wrapped variants, other chains, testnets and L2s are not supported. Each denomination is a separate vault contract; custom amounts are not possible, because fixed sizes are what make deposits indistinguishable from one another.</p>
+<div class="denoms mono"><div>10<span>USDC</span></div><div>50<span>USDC</span></div><div>100<span>USDC</span></div><div>1000<span>USDC</span></div></div>
+<ol class="steps"><li>Choose a denomination and make sure your wallet holds that much native USDC.</li><li>Your browser generates the note secrets and the commitment locally.</li><li>Save the note, and optionally an encrypted backup, before continuing.</li><li>You sign a USDC <code>receiveWithAuthorization</code> for exactly the denomination. Its nonce is bound to your commitment, so the signature cannot be reused for a different deposit.</li><li>The transaction is submitted (by the relayer when gas is sponsored). The vault supplies the funds to Aave and Morpho and inserts your commitment.</li></ol>
+<p>The vault records a bucketed yield index with each deposit, so deposits in the same period share an index and look alike.</p>
+</section>
+<section id="notes" class="rv" aria-labelledby="notes-h"><h2 id="notes-h"><span class="n mono">03</span>Notes, proofs, Merkle tree and nullifier</h2>
+<p>A note looks like <code>hushfund-usdc-100-ethereum-</code> followed by 256 hexadecimal characters. It encodes the denomination, the network and the secrets behind your commitment.</p>
+<p>Withdraw, borrow and repay each require a proof generated in your browser with Barretenberg. The proof shows you know a note in the vault's Merkle tree and binds the exact action details: recipient, relayer, relayer fee, borrow amount, chain and vault. Your note never leaves the browser.</p>
+<p>When a note is spent, the contract records its <strong>nullifier</strong>. Each note can be spent exactly once; a second attempt fails with "note already spent". If the tree changes while your proof is built, the contract may reject an unknown root and the proof must be generated again.</p>
+<p>Proof generation is CPU-heavy and may take from several seconds to a minute or more on phones. Keep the tab open and in the foreground.</p>
+</section>
+<section id="yield" class="rv" aria-labelledby="yield-h"><h2 id="yield-h"><span class="n mono">04</span>Variable yield from Aave and Morpho</h2>
+<p>Each vault supplies USDC to Aave V3 and to a Morpho ERC-4626 vault. Funds are split in the ratio of the two strategies' indices, and a note's value follows their average (blended) index.</p>
+<p>Yield is <strong>variable and not guaranteed</strong>. It changes with lending market conditions and can fall to near zero. The APY shown in the app is derived from observed history and may report that there is not enough history yet. Past rates do not predict future ones.</p>
+<p>The owner may propose moving funds to new strategy contracts. Any migration waits at least 2 days after it is proposed.</p>
+</section>
+<section id="withdraw" class="rv" aria-labelledby="withdraw-h"><h2 id="withdraw-h"><span class="n mono">05</span>Withdrawal, fees and liquidity</h2>
+<p>Paste a note, enter a recipient and generate the proof. The contract checks the proof, marks the nullifier as spent and transfers the payout:</p>
+<p class="mono" style="color:#fff">payout = denomination × current yield index ÷ note yield index − protocol fee − relayer fee</p>
+<ul><li><strong>Protocol fee:</strong> set per vault in basis points by the owner and capped by the contract at 100 bps (1%). The fee in effect when your transaction executes applies.</li>
+<li><strong>Relayer fee:</strong> quoted at the time of the action and included in the proof. It may be sponsored at zero, depending on server configuration.</li>
+<li><strong>Rounding:</strong> deposits use the next yield-index bucket, so rounding can slightly reduce the payout of an immediate withdrawal. The smallest USDC unit is 0.000001.</li>
+<li><strong>Liquidity:</strong> the owner cannot pause withdrawals, but they need enough liquidity in Aave or Morpho at that moment. If a market is fully utilised, try again later.</li>
+<li>A note with an active loan cannot be withdrawn until the loan is repaid.</li></ul>
+</section>
+<section id="borrow" class="rv" aria-labelledby="borrow-h"><h2 id="borrow-h"><span class="n mono">06</span>Borrowing against a note</h2>
+<p>You can borrow against a note without withdrawing it. The contract enforces a <strong>maximum loan-to-value of 70%</strong> of the note's current value. The note stays in the vault as collateral and is <strong>locked</strong> while the loan is active.</p>
+<p>Debt grows at the vault's own blended yield rate from the moment you borrow, so it tracks what the collateral earns. Debt uses upward integer rounding. There is no liquidation mechanism in the contract; the collateral stays locked until repaid. New loans can be paused by the owner.</p>
+</section>
+<section id="repay" class="rv" aria-labelledby="repay-h"><h2 id="repay-h"><span class="n mono">07</span>Repayment and replacement notes</h2>
+<p>Repaying requires the collateral note and a proof. You sign a USDC authorization slightly above the current debt (the app adds a 0.1% buffer for blocks mined meanwhile); anything above the exact debt is refunded in the same transaction.</p>
+<ul><li>The old note is <strong>retired permanently</strong>.</li><li>A fresh replacement note with the same yield index is inserted. Save it before signing, exactly like a deposit note.</li><li>If you lose the replacement note, the old note cannot be used instead.</li></ul>
+<p>The replacement gives a later withdrawal a new note identifier, but timing, recipients and other public activity can still reveal a link to the loan.</p>
+</section>
+<section id="sponsorship" class="rv" aria-labelledby="sponsorship-h"><h2 id="sponsorship-h"><span class="n mono">08</span>Gas sponsorship and its limits</h2>
+<p>When sponsorship is enabled, deposits and repayments are submitted by the relayer so you do not need ETH for them. Sponsorship is an operational service, not a contract guarantee.</p>
+<ul><li>It is limited by a per-wallet quota for new deposits and loans, and by a shared daily budget.</li><li>Repayments and withdrawals are exempt from the per-wallet quota but still need a valid authorization and remaining budget, and can fall back to requiring your own gas.</li><li>Sponsorship can change or end.</li></ul>
+</section>
+<p>The full reference, including contract addresses loaded from the app configuration and troubleshooting, is in the <a href="https://hushfund.app/docs">Hushfund Docs</a>.</p>
+<nav class="next" aria-label="More information"><a href="./privacy.html"><small class="mono">READ NEXT</small>Privacy limits</a><a href="./risks.html"><small class="mono">READ NEXT</small>Risks</a></nav>
+</main>
+</div>
+<footer class="foot"><div class="in"><span class="mono">HUSHFUND · Ethereum Mainnet</span>
+<nav aria-label="Footer"><a href="./">Home</a><a href="./mechanism.html">Mechanism</a><a href="./privacy.html">Privacy limits</a><a href="./risks.html">Risks</a><a href="https://hushfund.app/docs">Docs</a><a href="https://hushfund.app">App</a><a href="https://x.com/Hushfund_">X</a><a href="https://github.com/hushfund">GitHub</a></nav></div></footer>
+<script src="./information.js" defer></script>
+</body>
+</html>
